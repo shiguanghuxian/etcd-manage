@@ -17,7 +17,7 @@ services:
   etcd-manage:
     build: .
     volumes:
-      - ./bin/config/cfg.toml:/app/bin/config/cfg.toml
+      - ./bin/config/cfg.toml:/app/config/cfg.toml
     ports:
       - "10280:10280"
     depends_on:
