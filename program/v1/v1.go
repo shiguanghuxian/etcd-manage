@@ -224,13 +224,14 @@ func getEtcdServerList(c *gin.Context) {
 		c.JSON(http.StatusOK, list)
 		return
 	}
-
 	// 当前用户角色
 	userRole := ""
 	userRoleIn, exists := c.Get("userRole")
 	if exists == true {
 		userRole = userRoleIn.(string)
 	}
+
+	log.Println(userRole)
 
 	// 只返回有权限服务列表
 	list1 := make([]*config.EtcdServer, 0)

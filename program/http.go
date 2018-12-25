@@ -59,23 +59,26 @@ func (p *Program) startAPI() {
 func (p *Program) middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 获取登录用户名，查询角色
-		user := c.MustGet(gin.AuthUserKey).(string)
+		userIn := c.MustGet(gin.AuthUserKey)
 		userRole := ""
-		if user == "" {
-			c.Set("userRole", "")
-		} else {
-			u := p.cfg.GetUserByUsername(user)
-			if u == nil {
+		if userIn != nil {
+			user := userIn.(string)
+			if user == "" {
 				c.Set("userRole", "")
 			} else {
-				userRole = u.Role
-				// 角色和用户信息
-				c.Set("userRole", u.Role)
-				c.Set("authUser", u)
+				u := p.cfg.GetUserByUsername(user)
+				if u == nil {
+					c.Set("userRole", "")
+				} else {
+					userRole = u.Role
+					// 角色和用户信息
+					c.Set("userRole", u.Role)
+					c.Set("authUser", u)
+				}
 			}
 		}
-		// 绑定etcd连接
 
+		// 绑定etcd连接
 		etcdServerName := c.GetHeader("EtcdServerName")
 		if etcdServerName != "" {
 			cli, err := getEtcdCli(etcdServerName, userRole)
