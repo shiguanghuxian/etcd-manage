@@ -15,7 +15,8 @@ services:
     - 2380:2380
     - 4001:4001
   etcd-manage:
-    build: .
+    # build: .
+    image: "shiguanghuxian/etcd-manage"
     volumes:
       - ./bin/config/cfg.toml:/app/config/cfg.toml
     ports:

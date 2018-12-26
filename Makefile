@@ -2,17 +2,16 @@ default:
 	@echo 'Usage of make: [ build | linux_build | windows_build | build_web | clean ]'
 
 build: 
-	@go build -ldflags "-X main.VERSION=1.0.0 -X main.GIT_HASH=`git rev-parse HEAD` -s" -o ./bin/etcd-manage ./
+	@go build -o ./bin/etcd-manage ./
 
 linux_build: 
-	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-X main.VERSION=1.0.0 -X main.GIT_HASH=`git rev-parse HEAD` -s" -o ./bin/etcd-manage ./
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./bin/etcd-manage ./
 
 windows_build: 
-	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-X main.VERSION=1.0.0 -X main.GIT_HASH=`git rev-parse HEAD` -s" -o ./bin/etcd-manage.exe ./
+	@CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ./bin/etcd-manage.exe ./
 
 docker_build: linux_build
-	
-
+	docker build -t shiguanghuxian/etcd-manage .
 
 run: build
 	@./bin/etcd-manage
