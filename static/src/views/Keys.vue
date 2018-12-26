@@ -85,7 +85,7 @@
 
             </div>
 
-            <div style="height:100px;"></div>
+            <div style="height:200px;"></div>
 
             <div style="clear:both"></div>
             

@@ -22,6 +22,10 @@ export default new Router({
         path: 'servers',
         name: 'Servers',
         component: () => import('./views/EtcdServer.vue')
+      },{
+        path: 'Logs',
+        name: 'Logs',
+        component: () => import('./views/Logs.vue')
       }]
     },
     {

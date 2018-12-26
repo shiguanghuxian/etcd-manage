@@ -20,9 +20,13 @@
                 <Icon type="ios-cog" style="font-size:26px;" />
                 SETTING
             </MenuItem> -->
-             <MenuItem name="1-5" to="/servers">
+            <MenuItem name="1-5" to="/servers">
                 <Icon type="ios-laptop" style="font-size:26px;" />
                 SERVER
+            </MenuItem>
+            <MenuItem name="1-6" to="/Logs">
+                <Icon type="logo-buffer" style="font-size:26px;" />
+                Logs
             </MenuItem>
         </Menu>
     </div>

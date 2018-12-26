@@ -24,9 +24,6 @@ func (p *Program) startAPI() {
 	router.GET("/", func(c *gin.Context) {
 		c.Redirect(301, "/ui")
 	})
-	router.GET("/logout", func(c *gin.Context) {
-		c.Status(http.StatusUnauthorized)
-	})
 
 	// 读取认证列表
 	accounts := make(gin.Accounts, 0)
@@ -49,6 +46,7 @@ func (p *Program) startAPI() {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
+	log.Println("启动HTTP服务:", addr)
 	err := s.ListenAndServe()
 	if err != nil {
 		log.Fatalln(err)

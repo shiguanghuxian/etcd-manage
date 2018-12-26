@@ -1,13 +1,20 @@
 package v1
 
 import (
+	"bufio"
+	"encoding/json"
 	"errors"
-	"log"
+	"fmt"
 	"net/http"
+	"os"
+	"strconv"
+	"time"
 
 	gin "github.com/gin-gonic/gin"
+	"github.com/shiguanghuxian/etcd-manage/program/common"
 	"github.com/shiguanghuxian/etcd-manage/program/config"
 	"github.com/shiguanghuxian/etcd-manage/program/etcdv3"
+	"github.com/shiguanghuxian/etcd-manage/program/logger"
 )
 
 // V1 v1 版接口
@@ -21,16 +28,20 @@ func V1(v1 *gin.RouterGroup) {
 
 	v1.GET("/server", getEtcdServerList) // 获取etcd服务列表
 
+	v1.GET("/logs", getLogsList) // 查询日志
+
 }
 
-// 获取etcd值
+// 获取etcd key列表
 func getEtcdKeyList(c *gin.Context) {
+	go saveLog(c, "获取列表")
+
 	key := c.Query("key")
 
 	var err error
 	defer func() {
 		if err != nil {
-			log.Println(err)
+			logger.Log.Errorw("获取key列表错误", "err", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": err.Error(),
 			})
@@ -57,11 +68,13 @@ func getEtcdKeyList(c *gin.Context) {
 
 // 获取key的值
 func getEtcdKeyValue(c *gin.Context) {
+	go saveLog(c, "获取key的值")
+
 	key := c.Query("key")
 	var err error
 	defer func() {
 		if err != nil {
-			log.Println(err)
+			logger.Log.Errorw("获取key值的值错误", "err", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": err.Error(),
 			})
@@ -87,10 +100,12 @@ func getEtcdKeyValue(c *gin.Context) {
 
 // 获取服务节点
 func getEtcdMembers(c *gin.Context) {
+	go saveLog(c, "获取etcd集群信息")
+
 	var err error
 	defer func() {
 		if err != nil {
-			log.Println(err)
+			logger.Log.Errorw("获取服务节点错误", "err", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": err.Error(),
 			})
@@ -132,12 +147,14 @@ func putEtcdKey(c *gin.Context) {
 
 // 删除key
 func delEtcdKey(c *gin.Context) {
+	go saveLog(c, "删除key")
+
 	key := c.Query("key")
 
 	var err error
 	defer func() {
 		if err != nil {
-			log.Println(err)
+			logger.Log.Errorw("删除key错误", "err", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": err.Error(),
 			})
@@ -163,10 +180,12 @@ func delEtcdKey(c *gin.Context) {
 
 // 保存key
 func saveEtcdKey(c *gin.Context, isPut bool) {
+	go saveLog(c, "保存key")
+
 	var err error
 	defer func() {
 		if err != nil {
-			log.Println(err)
+			logger.Log.Errorw("保存key错误", "err", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": err.Error(),
 			})
@@ -211,6 +230,8 @@ func saveEtcdKey(c *gin.Context, isPut bool) {
 
 // 获取etcd服务列表
 func getEtcdServerList(c *gin.Context) {
+	go saveLog(c, "获取etcd服务列表")
+
 	cfg := config.GetCfg()
 	if cfg == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -231,7 +252,7 @@ func getEtcdServerList(c *gin.Context) {
 		userRole = userRoleIn.(string)
 	}
 
-	log.Println(userRole)
+	// log.Println(userRole)
 
 	// 只返回有权限服务列表
 	list1 := make([]*config.EtcdServer, 0)
@@ -248,7 +269,100 @@ func getEtcdServerList(c *gin.Context) {
 		}
 	}
 
-	log.Println(list1)
-
 	c.JSON(http.StatusOK, list1)
+}
+
+type LogLine struct {
+	Date string  `json:"date"`
+	User string  `json:"user"`
+	Role string  `json:"role"`
+	Msg  string  `json:"msg"`
+	Ts   float64 `json:"ts"`
+}
+
+// 查看日志
+func getLogsList(c *gin.Context) {
+	page := c.Query("page")
+	pageSize := c.Query("page_size")
+	dateStr := c.Query("date")
+
+	var err error
+	defer func() {
+		if err != nil {
+			logger.Log.Errorw("查看日志错误", "err", err)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"msg": err.Error(),
+			})
+		}
+	}()
+
+	// 计算开始和结束行
+	pageNum, _ := strconv.Atoi(page)
+	if pageNum <= 0 {
+		pageNum = 1
+	}
+	pageSizeNum, _ := strconv.Atoi(pageSize)
+	if pageSizeNum <= 0 {
+		pageSizeNum = 10
+	}
+	startLine := (pageNum - 1) * pageSizeNum
+	endLine := pageNum * pageSizeNum
+
+	fileName := fmt.Sprintf("%slogs/%s_info.log", common.GetRootDir(), dateStr)
+	// fmt.Println(fileName)
+	// 判断文件是否存在
+	if exists, err := common.PathExists(fileName); exists == false || err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": fmt.Sprintf("[%s]没有日志", dateStr),
+		})
+		return
+	}
+	// 读取指定行
+	file, err := os.Open(fileName)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"msg": "读取日志文件错误",
+		})
+		return
+	}
+	defer file.Close()
+	fileScanner := bufio.NewScanner(file)
+	lineCount := 1
+	listStr := make([]string, 0)
+	for fileScanner.Scan() {
+		if lineCount > startLine && lineCount <= endLine {
+			listStr = append(listStr, fileScanner.Text())
+		}
+		lineCount++
+	}
+	// 解析每一行
+	list := make([]*LogLine, 0)
+	for _, v := range listStr {
+		oneLog := new(LogLine)
+		err = json.Unmarshal([]byte(v), oneLog)
+		if err != nil {
+			logger.Log.Errorw("解析一行的日志错误", "err", err)
+			continue
+		}
+		oneLog.Date = time.Unix(int64(oneLog.Ts), 0).Format("2006-01-02 15:04:05")
+		list = append(list, oneLog)
+	}
+	err = nil
+
+	c.JSON(http.StatusOK, gin.H{
+		"list":  list,
+		"total": lineCount - 1,
+	})
+}
+
+// 记录访问日志
+func saveLog(c *gin.Context, msg string) {
+	user := c.MustGet(gin.AuthUserKey).(string) // 用户
+	userRole := ""                              // 角色
+	userRoleIn, exists := c.Get("userRole")
+	if exists == true && userRoleIn != nil {
+		userRole = userRoleIn.(string)
+	}
+	// 存储日志
+	logger.Log.Infow(msg, "user", user, "role", userRole)
 }

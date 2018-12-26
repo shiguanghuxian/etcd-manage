@@ -1,5 +1,5 @@
 # debug模式
-debug = true
+debug = false
 # 日志文件路径
 log_path = ""
 
