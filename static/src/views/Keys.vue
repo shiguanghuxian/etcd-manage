@@ -496,13 +496,13 @@ export default {
       this.baseList.forEach(val => {
         let fullDir = val.full_dir.substring(this.currentPath.length+1);
         // console.log(fullDir)
-        if(fullDir.indexOf(this.searchVal) == 0){
+        if(fullDir.indexOf(this.searchVal) == 0 || this.searchVal == ''){
           list.push(val);
         }
       });
       this.keysList1 = list;
       this.keysList = list;
-      if (this.searchVal == ''){
+      if (this.searchVal == '' && this.listType == 'list'){
         this.changeListPage(1);
         this.page = 1;
       }
