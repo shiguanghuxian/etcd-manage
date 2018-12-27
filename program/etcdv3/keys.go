@@ -58,9 +58,13 @@ func (c *Etcd3Client) Value(key string) (val *Node, err error) {
 	if err != nil {
 		return
 	}
-	val = &Node{
-		Value:   string(resp.Kvs[0].Value),
-		FullDir: key,
+	if resp.Kvs != nil && len(resp.Kvs) > 0 {
+		val = &Node{
+			Value:   string(resp.Kvs[0].Value),
+			FullDir: key,
+		}
+	} else {
+		err = ErrorKeyNotFound
 	}
 	return
 }
