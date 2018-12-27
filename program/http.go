@@ -119,6 +119,6 @@ func getEtcdCli(name, role string) (ctl *etcdv3.Etcd3Client, s *config.EtcdServe
 			return nil, nil, errors.New("无权限访问")
 		}
 	}
-	ctl, err = etcdv3.GetEtcdCli(name, s.Address...)
+	ctl, err = etcdv3.GetEtcdCli(s)
 	return
 }
