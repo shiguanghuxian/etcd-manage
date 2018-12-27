@@ -79,9 +79,10 @@ func (p *Program) middleware() gin.HandlerFunc {
 		// 绑定etcd连接
 		etcdServerName := c.GetHeader("EtcdServerName")
 		if etcdServerName != "" {
-			cli, err := getEtcdCli(etcdServerName, userRole)
+			cli, s, err := getEtcdCli(etcdServerName, userRole)
 			if err == nil {
 				c.Set("EtcdServer", cli)
+				c.Set("EtcdServerCfg", s)
 			}
 		}
 
@@ -101,10 +102,10 @@ func (p *Program) middleware() gin.HandlerFunc {
 }
 
 // 获取etcd 连接
-func getEtcdCli(name, role string) (*etcdv3.Etcd3Client, error) {
-	s := config.GetEtcdServer(name)
+func getEtcdCli(name, role string) (ctl *etcdv3.Etcd3Client, s *config.EtcdServer, err error) {
+	s = config.GetEtcdServer(name)
 	if s == nil {
-		return nil, errors.New("etcd服务不存在")
+		return nil, nil, errors.New("etcd服务不存在")
 	}
 	if len(s.Roles) > 0 {
 		isRole := false
@@ -115,8 +116,9 @@ func getEtcdCli(name, role string) (*etcdv3.Etcd3Client, error) {
 			}
 		}
 		if isRole == false {
-			return nil, errors.New("无权限访问")
+			return nil, nil, errors.New("无权限访问")
 		}
 	}
-	return etcdv3.GetEtcdCli(name, s.Address...)
+	ctl, err = etcdv3.GetEtcdCli(name, s.Address...)
+	return
 }

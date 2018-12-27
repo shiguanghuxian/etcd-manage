@@ -291,11 +291,12 @@ export default {
     };
   },
   mounted() {
+    this.getEtcdServers();
+
     this.lang = localStorage.getItem('lang') || 'en';
     this.listType = localStorage.getItem("list_type") || 'grid';
     this.currentPath = this.keyPrefix;
     this.etcdName = localStorage.getItem("etcdName") || '';
-    this.getEtcdServers();
 
     // 编辑器高度
     this.$refs.addEditor.editor.setSize('auto','60vh');
@@ -547,10 +548,12 @@ export default {
                 if (this.etcdName == ''){
                   this.etcdName = this.etcdServers[0].Name;
                   this.keyPrefix = this.etcdServers[0].KeyPrefix;
+                  this.currentPath = this.keyPrefix;
                 }else{
                   this.etcdServers.forEach(val => {
                     if(val.Name == this.etcdName){
                       this.keyPrefix = val.KeyPrefix;
+                      this.currentPath = this.keyPrefix;
                     }
                   });
                 }

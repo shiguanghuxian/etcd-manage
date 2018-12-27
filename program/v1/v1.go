@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	gin "github.com/gin-gonic/gin"
@@ -204,13 +205,28 @@ func saveEtcdKey(c *gin.Context, isPut bool) {
 
 	etcdCli, exists := c.Get("EtcdServer")
 	if exists == false {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": "Etcd client is empty",
-		})
+		err = errors.New("Etcd client is empty")
 		return
 	}
 	cli := etcdCli.(*etcdv3.Etcd3Client)
 
+	// 判断根目录是否存在
+	rootDir := ""
+	dirs := strings.Split(req.FullDir, "/")
+	if len(dirs) > 1 {
+		rootDir = strings.Join(dirs[:len(dirs)-1], "/")
+	}
+	if rootDir != "" {
+		_, err := cli.Value(rootDir)
+		if err != nil {
+			err = cli.Put(rootDir, etcdv3.DEFAULT_DIR_VALUE, true)
+			if err != nil {
+				return
+			}
+		}
+	}
+
+	// 保存key
 	if req.IsDir == true {
 		if isPut == true {
 			err = errors.New("目录不能修改")
