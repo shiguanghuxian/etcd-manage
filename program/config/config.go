@@ -36,12 +36,23 @@ type HTTP struct {
 
 // EtcdServer etcd 服务
 type EtcdServer struct {
-	Title     string   `toml:"title"`
-	Name      string   `toml:"name"`
-	Address   []string `toml:"address"`
-	KeyPrefix string   `toml:"key_prefix"`
-	Desc      string   `toml:"desc"`
-	Roles     []string `toml:"roles"` // 可访问此etcd服务的角色列表
+	Title     string         `toml:"title"`
+	Name      string         `toml:"name"`
+	Address   []string       `toml:"address"`
+	Username  string         `toml:"username"`
+	Password  string         `toml:"password"`
+	KeyPrefix string         `toml:"key_prefix"`
+	Desc      string         `toml:"desc"`
+	TLSEnable bool           `toml:"tls_enable"` // 是否启用tls连接
+	TLSConfig *EtcdTLSConfig `toml:"tls_config"` // 启用tls时必须配置此内容
+	Roles     []string       `toml:"roles"`      // 可访问此etcd服务的角色列表
+}
+
+// EtcdTLSConfig etcd tls配置
+type EtcdTLSConfig struct {
+	CertFile string `toml:"cert_file"`
+	KeyFile  string `toml:"key_file"`
+	CAFile   string `toml:"ca_file"`
 }
 
 // User 用户
