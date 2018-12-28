@@ -1,6 +1,7 @@
 package program
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os/exec"
@@ -29,6 +30,9 @@ func New() (*Program, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	jj, _ := json.Marshal(cfg)
+	fmt.Println(string(jj))
 
 	return &Program{
 		cfg: cfg,

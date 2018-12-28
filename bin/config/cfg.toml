@@ -24,6 +24,13 @@ key_prefix = "root"
 desc = "环境etcd"
 # 可访问服务器角色列表 - 不写则为所有用户可访问
 roles = ["admin"]
+# 是否启用tls连接
+tls_enable = true
+# tls证书配置
+[server.tls_config]
+cert_file = "cert_file"
+key_file = "key_file"
+ca_file = "ca_file"
 
 [[server]]
 title = "本机"
