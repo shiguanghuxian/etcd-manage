@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
-	"github.com/coreos/etcd/pkg/transport"
 	"github.com/shiguanghuxian/etcd-manage/program/config"
+	"go.etcd.io/etcd/clientv3"
+	"go.etcd.io/etcd/pkg/transport"
 )
 
 // Etcd3Client etcd v3客户端
@@ -47,9 +47,9 @@ func NewEtcdCli(etcdCfg *config.EtcdServer) (*Etcd3Client, error) {
 	if etcdCfg.TLSEnable == true {
 		// tls 配置
 		tlsInfo := transport.TLSInfo{
-			CertFile: etcdCfg.TLSConfig.CertFile,
-			KeyFile:  etcdCfg.TLSConfig.KeyFile,
-			CAFile:   etcdCfg.TLSConfig.CAFile,
+			CertFile:      etcdCfg.TLSConfig.CertFile,
+			KeyFile:       etcdCfg.TLSConfig.KeyFile,
+			TrustedCAFile: etcdCfg.TLSConfig.CAFile,
 		}
 		tlsConfig, err := tlsInfo.ClientConfig()
 		if err != nil {

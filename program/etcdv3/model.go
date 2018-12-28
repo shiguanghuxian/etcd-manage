@@ -3,8 +3,8 @@ package etcdv3
 import (
 	"strings"
 
-	"github.com/coreos/etcd/etcdserver/etcdserverpb"
-	"github.com/coreos/etcd/mvcc/mvccpb"
+	"go.etcd.io/etcd/etcdserver/etcdserverpb"
+	"go.etcd.io/etcd/mvcc/mvccpb"
 )
 
 // Node 需要使用到的模型
