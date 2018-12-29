@@ -64,7 +64,14 @@ func getEtcdKeyList(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	list := make([]*etcdv3.Node, 0)
+	for _, v := range resp {
+		if v.FullDir != "/" {
+			list = append(list, v)
+		}
+	}
+
+	c.JSON(http.StatusOK, list)
 }
 
 // 获取key的值
@@ -214,6 +221,16 @@ func saveEtcdKey(c *gin.Context, isPut bool) {
 	rootDir := ""
 	dirs := strings.Split(req.FullDir, "/")
 	if len(dirs) > 1 {
+		// 兼容/开头的key
+		if req.FullDir[:1] == "/" {
+			_, err := cli.Value("/")
+			if err != nil {
+				err = cli.Put("/", etcdv3.DEFAULT_DIR_VALUE, true)
+				if err != nil {
+					return
+				}
+			}
+		}
 		rootDir = strings.Join(dirs[:len(dirs)-1], "/")
 	}
 	if rootDir != "" {

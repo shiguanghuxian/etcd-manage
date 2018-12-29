@@ -6,7 +6,7 @@
                     name:''
                 })"><Icon type="ios-home-outline" /></span>
             <span v-show="showPathInput == false">
-                <span v-for="(item,key) in paths" :key="key" @click="openKeyForPath(item)"><span v-if="key > 0">/</span> {{ item.name }} </span>
+                <span v-for="(item,key) in paths" :key="key" @click="openKeyForPath(item)"><span v-if="key > 0 && item.name != '/' ">/</span> {{ item.name }} </span>
             </span>
             
             <!-- 路径文本框 -->
@@ -23,7 +23,7 @@
             <Button  type="error">{{$t('public.multiDelete')}}</Button>
             </Poptip>
 
-            <Button type="success" @click="addKeyInfoModel = true;addKeyInfo = {kType:'KEY'}" style="float:right;margin-right:6px;">{{$t('public.add')}}</Button>
+            <Button type="success" @click="addKeyInfoModel = true;addKeyInfo = {kType:'KEY',value:''}" style="float:right;margin-right:6px;">{{$t('public.add')}}</Button>
             <!-- 语言 -->
             <RadioGroup v-model="lang" @on-change="changeLang" type="button" style="float:right;margin-right:6px;">
                 <Radio label="en">EN</Radio>
@@ -93,7 +93,7 @@
 
         <!-- 查看弹框 -->
         <Drawer
-            :width="50"
+            :width="60"
             v-model="showKeyInfoModel"
             :title="$t('key.editKey')">
             <Form :model="showKeyInfo" :label-width="80">
@@ -101,7 +101,7 @@
                     <Input v-model="showKeyInfo.full_dir" disabled placeholder="key"></Input>
                 </FormItem>
                 <FormItem label="Value" prop="value" >
-                  <codemirror v-model="showKeyInfo.value" style="line-height:20px;" ref="showEditor"></codemirror>
+                  <codemirror v-model="showKeyInfo.value" :options="cmOption" style="line-height:20px;border: 1px solid #dcdee2;" ref="showEditor"></codemirror>
                 </FormItem>
                 <FormItem>
                     <Button @click="saveKey" type="primary">{{$t('public.save')}}</Button>
@@ -113,13 +113,13 @@
 
         <!-- 添加弹框 -->
         <Drawer
-            :width="50"
+            :width="60"
             v-model="addKeyInfoModel"
             :title="$t('key.addKey')">
             <Form :model="addKeyInfo" :label-width="80">
                 <FormItem label="Key" prop="key">
                     <Input v-model="addKeyInfo.key" placeholder="key">
-                        <span slot="prepend">{{currentPath}}/</span>
+                        <span slot="prepend">{{currentPath}}</span>
                     </Input>
                 </FormItem>
                 <FormItem label="KeyType" prop="kType">
@@ -130,7 +130,7 @@
                 </FormItem>
                 
                 <FormItem label="Value" prop="value" v-show="addKeyInfo.kType == 'KEY'">
-                  <codemirror v-model="addKeyInfo.value" ref="addEditor" :options="{mode: 'javascript'}" style="line-height:20px;border: 1px solid #dcdee2;"></codemirror>
+                  <codemirror v-model="addKeyInfo.value" ref="addEditor" :options="cmOption" style="line-height:20px;border: 1px solid #dcdee2;"></codemirror>
                 </FormItem>
 
                 <FormItem>
@@ -140,7 +140,6 @@
 
             </Form>
         </Drawer>
-
     </div>
 </template>
 
@@ -282,11 +281,9 @@ export default {
         styleActiveLine: true,
         lineNumbers: true,
         line: true,
-        mode: "text/javascript",
+        mode: 'text/javascript',
         lineWrapping: true,
-        extraKeys: { Ctrl: "autocomplete" },
-        theme: "monokai",
-        autoRefresh: true
+        theme: 'default'
       }
     };
   },
@@ -299,8 +296,8 @@ export default {
     this.etcdName = localStorage.getItem("etcdName") || '';
 
     // 编辑器高度
-    this.$refs.addEditor.editor.setSize('auto','60vh');
-    this.$refs.showEditor.editor.setSize('auto','60vh');
+    this.$refs.addEditor.codemirror.setSize('auto','60vh');
+    this.$refs.showEditor.codemirror.setSize('auto','60vh');
   },
   methods: {
     // 路径文本框回车
@@ -343,6 +340,9 @@ export default {
     openKeyForPath(item) {
       console.log(item)
       this.currentPath = item.key || this.keyPrefix;
+      if (this.currentPath == "/" && this.currentPath != this.keyPrefix){
+        this.currentPath = this.keyPrefix;
+      }
       console.log(this.currentPath)
 
       this.getKeyList();
@@ -354,9 +354,14 @@ export default {
         this.$Message.warning("key不能为空");
         return;
       }
+      // console.log(this.currentPath.trim('/'))
+      let fullDir = this.currentPath.trim('/');
+      if (fullDir == '/'){
+        fullDir = '';
+      }
       // 请求参数
       let postData = {
-        full_dir: this.currentPath.trim('/') + "/" + this.addKeyInfo.key,
+        full_dir: fullDir + "/" + this.addKeyInfo.key,
         is_dir: this.addKeyInfo.kType == "DIR",
         value: this.addKeyInfo.value,
       };
@@ -588,7 +593,7 @@ export default {
   watch:{
     currentPath(newCurrentPath){
       let paths = newCurrentPath.split("/");
-      if (paths.length == 0 || paths[0] == ''){
+      if (paths.length == 0){
         paths = [];
         paths.push(this.keyPrefix);
       }
@@ -596,12 +601,17 @@ export default {
       let fullDir = '';
       this.paths = [];
       paths.forEach(val => {
-        if (fullDir != ''){
+        console.log(this.keyPrefix.indexOf("/"))
+        if (this.keyPrefix.indexOf("/") == 0){
+          if (fullDir != '/'){
+            fullDir += '/';
+          }
+        } else if (fullDir != ''){
           fullDir += '/';
         }
         fullDir += val;
         this.paths.push({
-          key: fullDir.trim('/'),
+          key: fullDir, // .trim('/')
           name: val
         });
         console.log(this.paths)
