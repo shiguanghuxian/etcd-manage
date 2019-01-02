@@ -17,7 +17,7 @@ title = "测试环境"
 # 标识名
 name = "qa"
 # etcd连接地址 如果为集群请填写全部地址
-address = ["127.0.0.1:2379"]
+address = ["etcd0:2379"]
 # 查看的key前缀
 key_prefix = "root"
 # 简述信息
