@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	gin "github.com/gin-gonic/gin"
@@ -30,6 +31,8 @@ func V1(v1 *gin.RouterGroup) {
 
 	v1.GET("/logs", getLogsList) // 查询日志
 
+	v1.GET("/users", getUserList)       // 获取用户列表
+	v1.GET("/logtypes", getLogTypeList) // 获取日志类型列表
 }
 
 // 获取etcd key列表
@@ -63,7 +66,14 @@ func getEtcdKeyList(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	list := make([]*etcdv3.Node, 0)
+	for _, v := range resp {
+		if v.FullDir != "/" {
+			list = append(list, v)
+		}
+	}
+
+	c.JSON(http.StatusOK, list)
 }
 
 // 获取key的值
@@ -204,13 +214,38 @@ func saveEtcdKey(c *gin.Context, isPut bool) {
 
 	etcdCli, exists := c.Get("EtcdServer")
 	if exists == false {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": "Etcd client is empty",
-		})
+		err = errors.New("Etcd client is empty")
 		return
 	}
 	cli := etcdCli.(*etcdv3.Etcd3Client)
 
+	// 判断根目录是否存在
+	rootDir := ""
+	dirs := strings.Split(req.FullDir, "/")
+	if len(dirs) > 1 {
+		// 兼容/开头的key
+		if req.FullDir[:1] == "/" {
+			_, err := cli.Value("/")
+			if err != nil {
+				err = cli.Put("/", etcdv3.DEFAULT_DIR_VALUE, true)
+				if err != nil {
+					return
+				}
+			}
+		}
+		rootDir = strings.Join(dirs[:len(dirs)-1], "/")
+	}
+	if rootDir != "" {
+		_, err := cli.Value(rootDir)
+		if err != nil {
+			err = cli.Put(rootDir, etcdv3.DEFAULT_DIR_VALUE, true)
+			if err != nil {
+				return
+			}
+		}
+	}
+
+	// 保存key
 	if req.IsDir == true {
 		if isPut == true {
 			err = errors.New("目录不能修改")
@@ -272,12 +307,41 @@ func getEtcdServerList(c *gin.Context) {
 	c.JSON(http.StatusOK, list1)
 }
 
+// 获取用户列表
+func getUserList(c *gin.Context) {
+	us := make([]map[string]string, 0)
+	cfg := config.GetCfg()
+	if cfg != nil {
+		for _, v := range cfg.Users {
+			us = append(us, map[string]string{
+				"name": v.Username,
+				"role": v.Role,
+			})
+		}
+	}
+
+	c.JSON(http.StatusOK, us)
+}
+
+// 获取操作类型列表
+func getLogTypeList(c *gin.Context) {
+	c.JSON(http.StatusOK, []string{
+		"获取列表",
+		"获取key的值",
+		"获取etcd集群信息",
+		"删除key",
+		"保存key",
+		"获取etcd服务列表",
+	})
+}
+
 type LogLine struct {
-	Date string  `json:"date"`
-	User string  `json:"user"`
-	Role string  `json:"role"`
-	Msg  string  `json:"msg"`
-	Ts   float64 `json:"ts"`
+	Date  string  `json:"date"`
+	User  string  `json:"user"`
+	Role  string  `json:"role"`
+	Msg   string  `json:"msg"`
+	Ts    float64 `json:"ts"`
+	Level string  `json:"level"`
 }
 
 // 查看日志
@@ -308,7 +372,7 @@ func getLogsList(c *gin.Context) {
 	startLine := (pageNum - 1) * pageSizeNum
 	endLine := pageNum * pageSizeNum
 
-	fileName := fmt.Sprintf("%slogs/%s_info.log", common.GetRootDir(), dateStr)
+	fileName := fmt.Sprintf("%slogs/%s.log", common.GetRootDir(), dateStr)
 	// fmt.Println(fileName)
 	// 判断文件是否存在
 	if exists, err := common.PathExists(fileName); exists == false || err != nil {
@@ -328,24 +392,28 @@ func getLogsList(c *gin.Context) {
 	defer file.Close()
 	fileScanner := bufio.NewScanner(file)
 	lineCount := 1
-	listStr := make([]string, 0)
+	list := make([]*LogLine, 0) // 最终数组
 	for fileScanner.Scan() {
-		if lineCount > startLine && lineCount <= endLine {
-			listStr = append(listStr, fileScanner.Text())
-		}
-		lineCount++
-	}
-	// 解析每一行
-	list := make([]*LogLine, 0)
-	for _, v := range listStr {
-		oneLog := new(LogLine)
-		err = json.Unmarshal([]byte(v), oneLog)
-		if err != nil {
-			logger.Log.Errorw("解析一行的日志错误", "err", err)
+		logTxt := fileScanner.Text()
+		if logTxt == "" {
 			continue
 		}
-		oneLog.Date = time.Unix(int64(oneLog.Ts), 0).Format("2006-01-02 15:04:05")
-		list = append(list, oneLog)
+		// 解析日志
+		oneLog := new(LogLine)
+		err = json.Unmarshal([]byte(logTxt), oneLog)
+		if err != nil {
+			logger.Log.Errorw("解析日志文件错误", "err", err)
+			continue
+		}
+
+		if lineCount > startLine && lineCount <= endLine {
+			// 判断用户和日志类型参数
+
+			oneLog.Date = time.Unix(int64(oneLog.Ts), 0).Format("2006-01-02 15:04:05")
+			list = append(list, oneLog)
+		}
+
+		lineCount++
 	}
 	err = nil
 

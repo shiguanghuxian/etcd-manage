@@ -18,18 +18,18 @@ var (
 // InitLogger 日志初始化，用于记录操作日志
 func InitLogger(logPath string, isDebug bool) (*zap.SugaredLogger, error) {
 	infoLogPath := ""
-	errorLogPath := ""
+	// errorLogPath := ""
 	if logPath == "" {
 		logRoot := common.GetRootDir() + "logs/"
 		if isExt, _ := common.PathExists(logRoot); isExt == false {
 			os.MkdirAll(logRoot, os.ModePerm)
 		}
-		infoLogPath = logRoot + time.Now().Format("20060102_info") + ".log"
-		errorLogPath = logRoot + time.Now().Format("20060102_error") + ".log"
+		infoLogPath = logRoot + time.Now().Format("20060102") + ".log"
+		// errorLogPath = logRoot + time.Now().Format("20060102_error") + ".log"
 	} else {
 		logPath = strings.TrimRight(logPath, string(os.PathSeparator))
-		infoLogPath = logPath + string(os.PathSeparator) + time.Now().Format("20060102_info") + ".log"
-		errorLogPath = logPath + string(os.PathSeparator) + time.Now().Format("20060102_error") + ".log"
+		infoLogPath = logPath + string(os.PathSeparator) + time.Now().Format("20060102") + ".log"
+		// errorLogPath = logPath + string(os.PathSeparator) + time.Now().Format("20060102_error") + ".log"
 	}
 
 	cfg := &zap.Config{
@@ -40,11 +40,11 @@ func InitLogger(logPath string, isDebug bool) (*zap.SugaredLogger, error) {
 	if isDebug == true {
 		atom.SetLevel(zapcore.DebugLevel)
 		cfg.OutputPaths = []string{"stdout"}
-		cfg.ErrorOutputPaths = []string{"stdout"}
+		// cfg.ErrorOutputPaths = []string{"stdout"}
 	} else {
 		atom.SetLevel(zapcore.InfoLevel)
 		cfg.OutputPaths = []string{infoLogPath}
-		cfg.ErrorOutputPaths = []string{errorLogPath}
+		// cfg.ErrorOutputPaths = []string{errorLogPath}
 	}
 	cfg.Level = atom
 	logger, err := cfg.Build()

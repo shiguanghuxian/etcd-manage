@@ -19,6 +19,9 @@ import (
 func (p *Program) startAPI() {
 	router := gin.Default()
 
+	// 跨域问题
+	router.Use(p.middleware())
+
 	// 设置静态文件目录
 	router.GET("/ui/*w", p.handlerStatic)
 	router.GET("/", func(c *gin.Context) {
@@ -35,7 +38,7 @@ func (p *Program) startAPI() {
 
 	// v1 api
 	apiV1 := router.Group("/v1", gin.BasicAuth(accounts))
-	apiV1.Use(p.middleware()) // 只有接口需要中间件
+	apiV1.Use(p.middlewareEtcd()) // 注入etcd客户端
 	v1.V1(apiV1)
 
 	addr := fmt.Sprintf("%s:%d", p.cfg.HTTP.Address, p.cfg.HTTP.Port)
@@ -55,6 +58,22 @@ func (p *Program) startAPI() {
 
 // 跨域中间件
 func (p *Program) middleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// gin设置响应头，设置跨域
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization, Access-Control-Allow-Origin")
+		c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Content-Type")
+
+		//放行所有OPTIONS方法
+		if c.Request.Method == "OPTIONS" {
+			c.Status(http.StatusOK)
+		}
+	}
+}
+
+// etcd客户端中间件
+func (p *Program) middlewareEtcd() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 获取登录用户名，查询角色
 		userIn := c.MustGet(gin.AuthUserKey)
@@ -79,32 +98,23 @@ func (p *Program) middleware() gin.HandlerFunc {
 		// 绑定etcd连接
 		etcdServerName := c.GetHeader("EtcdServerName")
 		if etcdServerName != "" {
-			cli, err := getEtcdCli(etcdServerName, userRole)
+			cli, s, err := getEtcdCli(etcdServerName, userRole)
 			if err == nil {
 				c.Set("EtcdServer", cli)
+				c.Set("EtcdServerCfg", s)
 			}
 		}
 
 		c.Next()
 
-		// gin设置响应头，设置跨域
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization, Access-Control-Allow-Origin")
-		c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Content-Type")
-
-		//放行所有OPTIONS方法
-		if c.Request.Method == "OPTIONS" {
-			c.Status(http.StatusOK)
-		}
 	}
 }
 
 // 获取etcd 连接
-func getEtcdCli(name, role string) (*etcdv3.Etcd3Client, error) {
-	s := config.GetEtcdServer(name)
+func getEtcdCli(name, role string) (ctl *etcdv3.Etcd3Client, s *config.EtcdServer, err error) {
+	s = config.GetEtcdServer(name)
 	if s == nil {
-		return nil, errors.New("etcd服务不存在")
+		return nil, nil, errors.New("etcd服务不存在")
 	}
 	if len(s.Roles) > 0 {
 		isRole := false
@@ -115,8 +125,9 @@ func getEtcdCli(name, role string) (*etcdv3.Etcd3Client, error) {
 			}
 		}
 		if isRole == false {
-			return nil, errors.New("无权限访问")
+			return nil, nil, errors.New("无权限访问")
 		}
 	}
-	return etcdv3.GetEtcdCli(name, s.Address...)
+	ctl, err = etcdv3.GetEtcdCli(s)
+	return
 }

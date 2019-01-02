@@ -5,7 +5,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
+	"github.com/shiguanghuxian/etcd-manage/program/config"
+	"go.etcd.io/etcd/clientv3"
+	"go.etcd.io/etcd/pkg/transport"
 )
 
 // Etcd3Client etcd v3客户端
@@ -28,29 +30,66 @@ func init() {
 }
 
 // NewEtcdCli 创建一个etcd客户端
-func NewEtcdCli(name string, addr ...string) (*Etcd3Client, error) {
-	if len(addr) == 0 {
+func NewEtcdCli(etcdCfg *config.EtcdServer) (*Etcd3Client, error) {
+	if etcdCfg == nil {
+		return nil, errors.New("etcdCfg is nil")
+	}
+	if etcdCfg.TLSEnable == true && etcdCfg.TLSConfig == nil {
+		return nil, errors.New("TLSConfig is nil")
+	}
+	if len(etcdCfg.Address) == 0 {
 		return nil, errors.New("Etcd connection address cannot be empty")
 	}
-	cli, err := clientv3.New(clientv3.Config{
-		Endpoints:   addr,
-		DialTimeout: 10 * time.Second,
-	})
+
+	var cli *clientv3.Client
+	var err error
+
+	if etcdCfg.TLSEnable == true {
+		// tls 配置
+		tlsInfo := transport.TLSInfo{
+			CertFile:      etcdCfg.TLSConfig.CertFile,
+			KeyFile:       etcdCfg.TLSConfig.KeyFile,
+			TrustedCAFile: etcdCfg.TLSConfig.CAFile,
+		}
+		tlsConfig, err := tlsInfo.ClientConfig()
+		if err != nil {
+			return nil, err
+		}
+
+		cli, err = clientv3.New(clientv3.Config{
+			Endpoints:   etcdCfg.Address,
+			DialTimeout: 10 * time.Second,
+			TLS:         tlsConfig,
+			Username:    etcdCfg.Username,
+			Password:    etcdCfg.Password,
+		})
+	} else {
+		cli, err = clientv3.New(clientv3.Config{
+			Endpoints:   etcdCfg.Address,
+			DialTimeout: 10 * time.Second,
+			Username:    etcdCfg.Username,
+			Password:    etcdCfg.Password,
+		})
+	}
+
 	if err != nil {
 		return nil, err
 	}
-	etcdClis.Store(name, cli)
+	etcdClis.Store(etcdCfg.Name, cli)
 	return &Etcd3Client{
 		Client: cli,
 	}, nil
 }
 
 // GetEtcdCli 获取一个etcd cli对象
-func GetEtcdCli(name string, addr ...string) (*Etcd3Client, error) {
-	val, ok := etcdClis.Load(name)
+func GetEtcdCli(etcdCfg *config.EtcdServer) (*Etcd3Client, error) {
+	if etcdCfg == nil {
+		return nil, errors.New("etcdCfg is nil")
+	}
+	val, ok := etcdClis.Load(etcdCfg.Name)
 	if ok == false {
-		if len(addr) > 0 {
-			cli, err := NewEtcdCli(name, addr...)
+		if len(etcdCfg.Address) > 0 {
+			cli, err := NewEtcdCli(etcdCfg)
 			if err != nil {
 				return nil, err
 			}

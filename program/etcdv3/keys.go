@@ -2,21 +2,29 @@ package etcdv3
 
 import (
 	"context"
+	"errors"
 	"path"
 	"strings"
 	"time"
 
-	"github.com/coreos/etcd/clientv3"
-	"github.com/coreos/etcd/mvcc/mvccpb"
+	"go.etcd.io/etcd/clientv3"
+	"go.etcd.io/etcd/mvcc/mvccpb"
 )
 
 // List 获取目录下列表
 func (c *Etcd3Client) List(key string) (nodes []*Node, err error) {
-	key = strings.TrimRight(key, "/")
+	if key == "" {
+		return make([]*Node, 0), errors.New("key is empty")
+	}
+	// 兼容key前缀设置为 /
+	dir := key
+	if key != "/" {
+		key = strings.TrimRight(key, "/")
+		dir = key + "/"
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
-	dir := key + "/"
 
 	txn := c.Client.Txn(ctx)
 	txn.If(
@@ -58,9 +66,13 @@ func (c *Etcd3Client) Value(key string) (val *Node, err error) {
 	if err != nil {
 		return
 	}
-	val = &Node{
-		Value:   string(resp.Kvs[0].Value),
-		FullDir: key,
+	if resp.Kvs != nil && len(resp.Kvs) > 0 {
+		val = &Node{
+			Value:   string(resp.Kvs[0].Value),
+			FullDir: key,
+		}
+	} else {
+		err = ErrorKeyNotFound
 	}
 	return
 }
