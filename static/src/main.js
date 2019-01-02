@@ -25,7 +25,7 @@ Vue.use(VueCodemirror)
 Vue.config.productionTip = false;
 
 /* axios */
-axios.defaults.baseURL = 'http://127.0.0.1:10280';
+// axios.defaults.baseURL = 'http://127.0.0.1:10280';
 
 // 请求拦截器
 axios.interceptors.request.use(function (config) {
