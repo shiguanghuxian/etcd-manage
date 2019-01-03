@@ -349,6 +349,8 @@ func getLogsList(c *gin.Context) {
 	page := c.Query("page")
 	pageSize := c.Query("page_size")
 	dateStr := c.Query("date")
+	querUser := c.Query("user")
+	queryLogType := c.Query("log_type")
 
 	var err error
 	defer func() {
@@ -405,11 +407,21 @@ func getLogsList(c *gin.Context) {
 			logger.Log.Errorw("解析日志文件错误", "err", err)
 			continue
 		}
+		// 只看info类型日志
+		if oneLog.Level != "info" {
+			continue
+		}
 
 		if lineCount > startLine && lineCount <= endLine {
 			// 判断用户和日志类型参数
+			if querUser != "" && oneLog.User != querUser {
+				continue
+			}
+			if queryLogType != "" && oneLog.Msg != queryLogType {
+				continue
+			}
 
-			oneLog.Date = time.Unix(int64(oneLog.Ts), 0).Format("2006-01-02 15:04:05")
+			oneLog.Date = time.Unix(int64(oneLog.Ts), 0).In(time.Local).Format("2006-01-02 15:04:05")
 			list = append(list, oneLog)
 		}
 

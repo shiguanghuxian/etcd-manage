@@ -67,11 +67,13 @@ services:
       - -initial-cluster
       - etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
   etcd-manage:
-    build: .
+    # build: .
+    image: "shiguanghuxian/etcd-manage"
     ports:
-      - 10280
+      - "10280:10280"
     volumes:
       - ./bin/config/cfg.toml:/app/config/cfg.toml
+      - ./bin/logs:/app/logs
     depends_on:
       - etcd0
 

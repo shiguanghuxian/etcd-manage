@@ -13,6 +13,12 @@ windows_build:
 docker_build: linux_build
 	docker build -t shiguanghuxian/etcd-manage .
 
+docker_run: docker_build
+	docker-compose up --force-recreate
+
+docker_cluster_run: docker_build
+	docker-compose -f docker-compose-cluster.yml up --force-recreate
+
 run: build
 	@./bin/etcd-manage
 
@@ -24,5 +30,6 @@ build_web:
 
 clean: 
 	@rm -f ./bin/etcd-manage*
+	@rm -f ./bin/logs/*
 
 .PHONY: default build linux_build windows_build clean

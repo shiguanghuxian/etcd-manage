@@ -21,8 +21,9 @@
                 <FormItem prop="用户">
                     <Select v-model="user" clearable style="width:200px">
                         <Option v-for="item in users" :value="item.name" :key="item.name">
-                            <span>{{ item.name }}</span>
-                            <span style="float:right;color:#ccc">{{ item.role }}</span>
+                            {{ item.name }}
+                            <!-- <span>{{ item.name }}</span>
+                            <span style="float:right;color:#ccc">{{ item.role }}</span> -->
                         </Option>
                     </Select>
                 </FormItem>
@@ -32,7 +33,7 @@
                     </Select>
                 </FormItem>
                 <FormItem>
-                    <Button type="primary" @click="handleSubmit('formInline')">筛选</Button>
+                    <Button type="primary" @click="getList">筛选</Button>
                 </FormItem>
             </Form>
         </div>
@@ -117,7 +118,11 @@ export default {
             this.$Loading.start();
             this.list = [];
             this.listTotal = 0;
-            this.$http.get(`/v1/logs?date=${this.date}&page=${this.page}&page_size=${this.pageSize}`)
+
+            this.user = this.user || '';
+            this.logType = this.logType || '';
+
+            this.$http.get(`/v1/logs?date=${this.date}&page=${this.page}&page_size=${this.pageSize}&user=${this.user}&log_type=${this.logType}`)
             .then(response => {
                 console.log(response);
                 if(response.status == 200){

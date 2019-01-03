@@ -40,7 +40,7 @@
         <div class="search">
           <Form inline>
             <FormItem>
-              <Select v-model="etcdName" style="text-align: left;width:200px" @on-change="changeEtcdName">
+              <Select v-model="etcdName" style="text-align: left;width:300px" @on-change="changeEtcdName">
                 <Option v-for="item in etcdServers" :label="item.Title" :value="item.Name" :key="item.Name">
                   <b>{{ item.Title }}</b> 
                   <span style="float:right;color:#ccc">{{ item.Name }}</span>
@@ -699,7 +699,7 @@ export default {
 }
 
 .search .search-in{
-  width: 60%;
+  width: 50%;
   min-width: 300px;
   margin: 0 auto;
 }
