@@ -31,6 +31,8 @@ func V1(v1 *gin.RouterGroup) {
 
 	v1.GET("/logs", getLogsList) // 查询日志
 
+	v1.GET("/users", getUserList)       // 获取用户列表
+	v1.GET("/logtypes", getLogTypeList) // 获取日志类型列表
 }
 
 // 获取etcd key列表
@@ -305,12 +307,41 @@ func getEtcdServerList(c *gin.Context) {
 	c.JSON(http.StatusOK, list1)
 }
 
+// 获取用户列表
+func getUserList(c *gin.Context) {
+	us := make([]map[string]string, 0)
+	cfg := config.GetCfg()
+	if cfg != nil {
+		for _, v := range cfg.Users {
+			us = append(us, map[string]string{
+				"name": v.Username,
+				"role": v.Role,
+			})
+		}
+	}
+
+	c.JSON(http.StatusOK, us)
+}
+
+// 获取操作类型列表
+func getLogTypeList(c *gin.Context) {
+	c.JSON(http.StatusOK, []string{
+		"获取列表",
+		"获取key的值",
+		"获取etcd集群信息",
+		"删除key",
+		"保存key",
+		"获取etcd服务列表",
+	})
+}
+
 type LogLine struct {
-	Date string  `json:"date"`
-	User string  `json:"user"`
-	Role string  `json:"role"`
-	Msg  string  `json:"msg"`
-	Ts   float64 `json:"ts"`
+	Date  string  `json:"date"`
+	User  string  `json:"user"`
+	Role  string  `json:"role"`
+	Msg   string  `json:"msg"`
+	Ts    float64 `json:"ts"`
+	Level string  `json:"level"`
 }
 
 // 查看日志
@@ -318,6 +349,8 @@ func getLogsList(c *gin.Context) {
 	page := c.Query("page")
 	pageSize := c.Query("page_size")
 	dateStr := c.Query("date")
+	querUser := c.Query("user")
+	queryLogType := c.Query("log_type")
 
 	var err error
 	defer func() {
@@ -341,7 +374,7 @@ func getLogsList(c *gin.Context) {
 	startLine := (pageNum - 1) * pageSizeNum
 	endLine := pageNum * pageSizeNum
 
-	fileName := fmt.Sprintf("%slogs/%s_info.log", common.GetRootDir(), dateStr)
+	fileName := fmt.Sprintf("%slogs/%s.log", common.GetRootDir(), dateStr)
 	// fmt.Println(fileName)
 	// 判断文件是否存在
 	if exists, err := common.PathExists(fileName); exists == false || err != nil {
@@ -361,24 +394,38 @@ func getLogsList(c *gin.Context) {
 	defer file.Close()
 	fileScanner := bufio.NewScanner(file)
 	lineCount := 1
-	listStr := make([]string, 0)
+	list := make([]*LogLine, 0) // 最终数组
 	for fileScanner.Scan() {
-		if lineCount > startLine && lineCount <= endLine {
-			listStr = append(listStr, fileScanner.Text())
-		}
-		lineCount++
-	}
-	// 解析每一行
-	list := make([]*LogLine, 0)
-	for _, v := range listStr {
-		oneLog := new(LogLine)
-		err = json.Unmarshal([]byte(v), oneLog)
-		if err != nil {
-			logger.Log.Errorw("解析一行的日志错误", "err", err)
+		logTxt := fileScanner.Text()
+		if logTxt == "" {
 			continue
 		}
-		oneLog.Date = time.Unix(int64(oneLog.Ts), 0).Format("2006-01-02 15:04:05")
-		list = append(list, oneLog)
+		// 解析日志
+		oneLog := new(LogLine)
+		err = json.Unmarshal([]byte(logTxt), oneLog)
+		if err != nil {
+			logger.Log.Errorw("解析日志文件错误", "err", err)
+			continue
+		}
+		// 只看info类型日志
+		if oneLog.Level != "info" {
+			continue
+		}
+
+		if lineCount > startLine && lineCount <= endLine {
+			// 判断用户和日志类型参数
+			if querUser != "" && oneLog.User != querUser {
+				continue
+			}
+			if queryLogType != "" && oneLog.Msg != queryLogType {
+				continue
+			}
+
+			oneLog.Date = time.Unix(int64(oneLog.Ts), 0).In(time.Local).Format("2006-01-02 15:04:05")
+			list = append(list, oneLog)
+		}
+
+		lineCount++
 	}
 	err = nil
 

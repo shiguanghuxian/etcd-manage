@@ -14,7 +14,28 @@
 <template>
     <div class="logs">
         <div class="search">
-            <DatePicker type="date" placeholder="Select date" style="width: 300px" @on-change="changeDate" format="yyyyMMdd"></DatePicker>
+            <Form :rules="ruleInline" inline>
+                <FormItem prop="日期">
+                    <DatePicker type="date" placeholder="Select date" style="width: 300px" @on-change="changeDate" format="yyyyMMdd"></DatePicker>
+                </FormItem>
+                <FormItem prop="用户">
+                    <Select v-model="user" clearable style="width:200px">
+                        <Option v-for="item in users" :value="item.name" :key="item.name">
+                            {{ item.name }}
+                            <!-- <span>{{ item.name }}</span>
+                            <span style="float:right;color:#ccc">{{ item.role }}</span> -->
+                        </Option>
+                    </Select>
+                </FormItem>
+                <FormItem prop="类型">
+                    <Select v-model="logType" clearable style="width:200px">
+                        <Option v-for="item in logtypes" :value="item" :key="item">{{ item }}</Option>
+                    </Select>
+                </FormItem>
+                <FormItem>
+                    <Button type="primary" @click="getList">筛选</Button>
+                </FormItem>
+            </Form>
         </div>
         <Table border :columns="columns" :data="list" :loading="loading"></Table>
         <div style="margin-top:10px; text-align: right;">
@@ -34,6 +55,10 @@ export default {
             listTotal:0,
             loading:false,
             date:'',
+            logtypes:[], // 日志类型列表
+            users:[], // 用户列表
+            logType:'', // 日志类型
+            user:'', // 用户名
             columns:[{
                     title: 'Date',
                     key: 'date'
@@ -56,6 +81,10 @@ export default {
         this.bindDate = new Date();
         // this.getList();
         this.$Message.info('选择日期查看日志');
+
+        // 下拉框数据
+        this.getUsers();
+        this.getLogtypes();
     },
     methods:{
         // 切换每页数据大小
@@ -89,7 +118,11 @@ export default {
             this.$Loading.start();
             this.list = [];
             this.listTotal = 0;
-            this.$http.get(`/v1/logs?date=${this.date}&page=${this.page}&page_size=${this.pageSize}`)
+
+            this.user = this.user || '';
+            this.logType = this.logType || '';
+
+            this.$http.get(`/v1/logs?date=${this.date}&page=${this.page}&page_size=${this.pageSize}&user=${this.user}&log_type=${this.logType}`)
             .then(response => {
                 console.log(response);
                 if(response.status == 200){
@@ -104,6 +137,36 @@ export default {
                 }
                 this.loading = false;
                 this.$Loading.error();
+            });
+        },
+
+        // 获取用户列表
+        getUsers(){
+            this.$http.get(`/v1/users`)
+            .then(response => {
+                console.log(response);
+                if(response.status == 200){
+                    this.users = response.data || [];
+                }
+            }).catch(error=>{
+                if (error.response){
+                    this.$Message.error(error.response.data.msg);
+                }
+            });
+        },
+
+        // 获取日志类型列表
+        getLogtypes(){
+            this.$http.get(`/v1/logtypes`)
+            .then(response => {
+                console.log(response);
+                if(response.status == 200){
+                    this.logtypes = response.data || [];
+                }
+            }).catch(error=>{
+                if (error.response){
+                    this.$Message.error(error.response.data.msg);
+                }
             });
         }
     }
