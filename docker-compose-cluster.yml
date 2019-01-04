@@ -5,7 +5,8 @@ services:
     ports:
       - 2379
     volumes:
-      - etcd0:/etcd_data
+      - ./bin/etcd0:/etcd_data
+      - ./bin/tlskey:/etc/etcd/etcdSSL
     command:
       - /usr/local/bin/etcd
       - -name
@@ -22,12 +23,25 @@ services:
       - http://0.0.0.0:2380
       - -initial-cluster
       - etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+      - --cert-file
+      - /etc/etcd/etcdSSL/etcd.pem
+      - --key-file
+      - /etc/etcd/etcdSSL/etcd-key.pem
+      - --peer-cert-file
+      - /etc/etcd/etcdSSL/etcd.pem
+      - --peer-key-file
+      - /etc/etcd/etcdSSL/etcd-key.pem
+      - --trusted-ca-file
+      - /etc/etcd/etcdSSL/ca.pem
+      - --peer-trusted-ca-file
+      - /etc/etcd/etcdSSL/ca.pem
   etcd1:
     image: quay.io/coreos/etcd:v3.3
     ports:
       - 2379
     volumes:
-      - etcd1:/etcd_data
+      - ./bin/etcd1:/etcd_data
+      - ./bin/tlskey:/etc/etcd/etcdSSL
     command:
       - /usr/local/bin/etcd
       - -name
@@ -44,12 +58,25 @@ services:
       - http://0.0.0.0:2380
       - -initial-cluster
       - etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+      - --cert-file
+      - /etc/etcd/etcdSSL/etcd.pem
+      - --key-file
+      - /etc/etcd/etcdSSL/etcd-key.pem
+      - --peer-cert-file
+      - /etc/etcd/etcdSSL/etcd.pem
+      - --peer-key-file
+      - /etc/etcd/etcdSSL/etcd-key.pem
+      - --trusted-ca-file
+      - /etc/etcd/etcdSSL/ca.pem
+      - --peer-trusted-ca-file
+      - /etc/etcd/etcdSSL/ca.pem
   etcd2:
     image: quay.io/coreos/etcd:v3.3
     ports:
       - 2379
     volumes:
-      - etcd2:/etcd_data
+      - ./bin/etcd2:/etcd_data
+      - ./bin/tlskey:/etc/etcd/etcdSSL
     command:
       - /usr/local/bin/etcd
       - -name
@@ -66,6 +93,18 @@ services:
       - http://0.0.0.0:2380
       - -initial-cluster
       - etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+      - --cert-file
+      - /etc/etcd/etcdSSL/etcd.pem
+      - --key-file
+      - /etc/etcd/etcdSSL/etcd-key.pem
+      - --peer-cert-file
+      - /etc/etcd/etcdSSL/etcd.pem
+      - --peer-key-file
+      - /etc/etcd/etcdSSL/etcd-key.pem
+      - --trusted-ca-file
+      - /etc/etcd/etcdSSL/ca.pem
+      - --peer-trusted-ca-file
+      - /etc/etcd/etcdSSL/ca.pem
   etcd-manage:
     # build: .
     image: "shiguanghuxian/etcd-manage"
@@ -74,6 +113,7 @@ services:
     volumes:
       - ./bin/config/cfg.toml:/app/config/cfg.toml
       - ./bin/logs:/app/logs
+      - ./bin/tlskey:/etc/etcd/etcdSSL
     depends_on:
       - etcd0
 

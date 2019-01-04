@@ -19,5 +19,6 @@ etcd-manage
 
 bin/etcd-manage
 bin/logs/*
+bin/etcd*
 
 tpls/dist/*
