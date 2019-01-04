@@ -10,6 +10,19 @@ address = "0.0.0.0"
 # 监听端口
 port = 10280
 
+# 使用 Let's Encrypt 证书 - tls_enable为true优先使用本地证书模式
+tls_encrypt_enable = true
+# 域名列表
+tls_encrypt_domain_names = ["shiguanghuxian.com"]
+
+# 是否启用tls
+tls_enable = false
+# tls证书文件
+[http.tls_config]
+cert_file = "cert_file"
+key_file = "key_file"
+
+
 ## 一下每一个server为一个etcd服务 ##
 [[server]]
 # 显示名称

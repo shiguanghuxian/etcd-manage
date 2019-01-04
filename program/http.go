@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-gonic/autotls"
 	gin "github.com/gin-gonic/gin"
 	"github.com/shiguanghuxian/etcd-manage/program/config"
 	"github.com/shiguanghuxian/etcd-manage/program/etcdv3"
@@ -49,8 +50,22 @@ func (p *Program) startAPI() {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
+
 	log.Println("启动HTTP服务:", addr)
-	err := s.ListenAndServe()
+	var err error
+	if p.cfg.HTTP.TLSEnable == true {
+		if p.cfg.HTTP.TLSConfig == nil || p.cfg.HTTP.TLSConfig.CertFile == "" || p.cfg.HTTP.TLSConfig.KeyFile == "" {
+			log.Fatalln("启用tls必须配置证书文件路径")
+		}
+		err = s.ListenAndServeTLS(p.cfg.HTTP.TLSConfig.CertFile, p.cfg.HTTP.TLSConfig.KeyFile)
+	} else if p.cfg.HTTP.TLSEncryptEnable == true {
+		if len(p.cfg.HTTP.TLSEncryptDomainNames) == 0 {
+			log.Fatalln("域名列表不能为空")
+		}
+		err = autotls.Run(router, p.cfg.HTTP.TLSEncryptDomainNames...)
+	} else {
+		err = s.ListenAndServe()
+	}
 	if err != nil {
 		log.Fatalln(err)
 	}

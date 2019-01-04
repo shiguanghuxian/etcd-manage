@@ -58,6 +58,12 @@
 			"revisionTime": "2017-01-09T09:34:21Z"
 		},
 		{
+			"checksumSHA1": "EEJ9hH3lJfShSaPFn84i+0MKpjE=",
+			"path": "github.com/gin-gonic/autotls",
+			"revision": "be87bd5ef97b7398e468c35ad266aabf099a095b",
+			"revisionTime": "2018-04-26T09:12:46Z"
+		},
+		{
 			"checksumSHA1": "Co3dZX3xVmKVb1J8vOszZMmll4s=",
 			"path": "github.com/gin-gonic/gin",
 			"revision": "b27b7026c70697d84226f15d6d433bdf07023c5c",
@@ -887,6 +893,24 @@
 			"path": "go.uber.org/zap/zaptest/observer",
 			"revision": "67bc79d13d155c02fd008f721863ff8cc5f30659",
 			"revisionTime": "2018-08-14T18:34:19Z"
+		},
+		{
+			"checksumSHA1": "PPbovf0/b6fEYqu5kU9ENpVCUEY=",
+			"path": "golang.org/x/crypto/acme",
+			"revision": "182538f80094b6a8efaade63a8fd8e0d9d5843dd",
+			"revisionTime": "2018-08-30T18:34:03Z"
+		},
+		{
+			"checksumSHA1": "9IuaGFC9OhP3tbBE0N1xZdF9+qA=",
+			"path": "golang.org/x/crypto/acme/autocert",
+			"revision": "182538f80094b6a8efaade63a8fd8e0d9d5843dd",
+			"revisionTime": "2018-08-30T18:34:03Z"
+		},
+		{
+			"checksumSHA1": "h5++tJbH/hHoYbr6bzf6Ey8BAq4=",
+			"path": "golang.org/x/crypto/acme/autocert/internal/acmetest",
+			"revision": "182538f80094b6a8efaade63a8fd8e0d9d5843dd",
+			"revisionTime": "2018-08-30T18:34:03Z"
 		},
 		{
 			"checksumSHA1": "oCH3J96RWvO8W4xjix47PModpio=",
