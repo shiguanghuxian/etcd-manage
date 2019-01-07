@@ -10,6 +10,19 @@ address = "0.0.0.0"
 # 监听端口
 port = 10280
 
+# 使用 Let's Encrypt 证书 - tls_enable为true优先使用本地证书模式
+tls_encrypt_enable = false
+# 域名列表
+tls_encrypt_domain_names = ["shiguanghuxian.com"]
+
+# 是否启用tls
+tls_enable = false
+# tls证书文件
+[http.tls_config]
+cert_file = "cert_file"
+key_file = "key_file"
+
+
 ## 一下每一个server为一个etcd服务 ##
 [[server]]
 # 显示名称
@@ -25,12 +38,12 @@ desc = "docker方式etcd集群方式"
 # 可访问服务器角色列表 - 不写则为所有用户可访问
 roles = ["admin"]
 # 是否启用tls连接
-tls_enable = false
+tls_enable = true
 # tls证书配置
 [server.tls_config]
-cert_file = "cert_file"
-key_file = "key_file"
-ca_file = "ca_file"
+cert_file = "/etc/etcd/etcdSSL/etcd.pem"
+key_file = "/etc/etcd/etcdSSL/etcd-key.pem"
+ca_file = "/etc/etcd/etcdSSL/etcd-root-ca.pem"
 
 [[server]]
 title = "make docker_run"

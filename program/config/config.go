@@ -30,8 +30,18 @@ func (c *Config) GetUserByUsername(username string) *User {
 
 // HTTP http 件套配置
 type HTTP struct {
-	Address string `toml:"address"`
-	Port    int    `toml:"port"`
+	Address               string   `toml:"address"`
+	Port                  int      `toml:"port"`
+	TLSEnable             bool     `toml:"tls_enable"`               // 是否启用tls连接
+	TLSConfig             *HTTPTls `toml:"tls_config"`               // 启用tls时必须配置此内容
+	TLSEncryptEnable      bool     `toml:"tls_encrypt_enable"`       // 是否启用 Let's Encrypt tls
+	TLSEncryptDomainNames []string `toml:"tls_encrypt_domain_names"` // 启用 Let's Encrypt 时的域名列表
+}
+
+// HTTPTls http tls配置
+type HTTPTls struct {
+	CertFile string `toml:"cert_file"`
+	KeyFile  string `toml:"key_file"`
 }
 
 // EtcdServer etcd 服务
