@@ -43,7 +43,7 @@ tls_enable = true
 [server.tls_config]
 cert_file = "/etc/etcd/etcdSSL/etcd.pem"
 key_file = "/etc/etcd/etcdSSL/etcd-key.pem"
-ca_file = "/etc/etcd/etcdSSL/ca.pem"
+ca_file = "/etc/etcd/etcdSSL/etcd-root-ca.pem"
 
 [[server]]
 title = "make docker_run"
