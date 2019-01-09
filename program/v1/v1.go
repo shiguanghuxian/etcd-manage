@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -26,6 +27,8 @@ func V1(v1 *gin.RouterGroup) {
 	v1.POST("/key", postEtcdKey)       // 添加key
 	v1.PUT("/key", putEtcdKey)         // 修改key
 	v1.DELETE("/key", delEtcdKey)      // 删除key
+
+	v1.GET("/key/format", getValueToFormat) // 格式化为json或toml
 
 	v1.GET("/server", getEtcdServerList) // 获取etcd服务列表
 
@@ -225,7 +228,7 @@ func saveEtcdKey(c *gin.Context, isPut bool) {
 	if len(dirs) > 1 {
 		// 兼容/开头的key
 		if req.FullDir[:1] == "/" {
-			_, err := cli.Value("/")
+			_, err = cli.Value("/")
 			if err != nil {
 				err = cli.Put("/", etcdv3.DEFAULT_DIR_VALUE, true)
 				if err != nil {
@@ -236,11 +239,33 @@ func saveEtcdKey(c *gin.Context, isPut bool) {
 		rootDir = strings.Join(dirs[:len(dirs)-1], "/")
 	}
 	if rootDir != "" {
-		_, err := cli.Value(rootDir)
-		if err != nil {
-			err = cli.Put(rootDir, etcdv3.DEFAULT_DIR_VALUE, true)
+		// 用/分割
+		rootDirs := strings.Split(rootDir, "/")
+		if len(rootDirs) > 1 {
+			rootDir1 := ""
+			for _, vDir := range rootDirs {
+				if vDir == "" {
+					vDir = "/"
+				}
+				if rootDir1 != "" && rootDir1 != "/" {
+					rootDir1 += "/"
+				}
+				rootDir1 += vDir
+				_, err = cli.Value(rootDir1)
+				if err != nil {
+					err = cli.Put(rootDir1, etcdv3.DEFAULT_DIR_VALUE, true)
+					if err != nil {
+						return
+					}
+				}
+			}
+		} else {
+			_, err = cli.Value(rootDir)
 			if err != nil {
-				return
+				err = cli.Put(rootDir, etcdv3.DEFAULT_DIR_VALUE, true)
+				if err != nil {
+					return
+				}
 			}
 		}
 	}
@@ -261,6 +286,49 @@ func saveEtcdKey(c *gin.Context, isPut bool) {
 	}
 
 	c.JSON(http.StatusOK, "ok")
+}
+
+// 获取key前缀，下的值为指定格式 josn toml
+func getValueToFormat(c *gin.Context) {
+	go saveLog(c, "格式化显示key")
+
+	format := c.Query("format")
+	key := c.Query("key")
+
+	var err error
+	defer func() {
+		if err != nil {
+			logger.Log.Errorw("保存key错误", "err", err)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"msg": err.Error(),
+			})
+		}
+	}()
+
+	etcdCli, exists := c.Get("EtcdServer")
+	if exists == false {
+		err = errors.New("Etcd client is empty")
+		return
+	}
+	cli := etcdCli.(*etcdv3.Etcd3Client)
+
+	list, err := cli.GetRecursiveValue(key)
+
+	js, _ := json.Marshal(list)
+	log.Println(string(js))
+
+	switch format {
+	case "json":
+		resp, err := etcdv3.NodeJsonFormat(key, list)
+		if err != nil {
+			return
+		}
+		c.JSON(http.StatusOK, resp)
+	case "toml":
+
+	default:
+		err = errors.New("不支持的格式")
+	}
 }
 
 // 获取etcd服务列表

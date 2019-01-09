@@ -70,6 +70,7 @@ func (c *Etcd3Client) Value(key string) (val *Node, err error) {
 		val = &Node{
 			Value:   string(resp.Kvs[0].Value),
 			FullDir: key,
+			Version: resp.Kvs[0].Version,
 		}
 	} else {
 		err = ErrorKeyNotFound
@@ -104,6 +105,7 @@ func (c *Etcd3Client) ensureKey(key string) (string, string) {
 
 // Put 添加一个key
 func (c *Etcd3Client) Put(key string, value string, mustEmpty bool) error {
+	// log.Println(key)
 	key, parentKey := c.ensureKey(key)
 	//  需要判断的条件
 	cmp := make([]clientv3.Cmp, 0)
@@ -183,4 +185,25 @@ func (c *Etcd3Client) Delete(key string) error {
 
 	_, err := txn.Commit()
 	return err
+}
+
+// GetRecursiveValue 获取前缀下的所有key
+func (c *Etcd3Client) GetRecursiveValue(key string) (list []*Node, err error) {
+	list = make([]*Node, 0)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	resp, err := c.Client.KV.Get(ctx, key, clientv3.WithPrefix(), clientv3.WithSort(clientv3.SortByKey, clientv3.SortAscend))
+	if err != nil {
+		return nil, err
+	}
+	for _, kv := range resp.Kvs {
+		list = append(list, &Node{
+			Value:   string(kv.Value),
+			FullDir: string(kv.Key),
+			Version: kv.Version,
+		})
+	}
+
+	return
 }
