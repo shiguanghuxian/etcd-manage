@@ -33,6 +33,7 @@
             <RadioGroup v-model="listType" @on-change="changeListType" type="button" style="float:right;margin-right:6px;">
                 <Radio label="grid"><Icon type="md-grid" /></Radio>
                 <Radio label="list"><Icon type="ios-list-box-outline" /></Radio>
+                <Radio label="json"><img src="../assets/imgs/json.png" alt="json" style="width:16px;height:auto;margin-top:7px"></Radio>
             </RadioGroup>
 
         </div>
@@ -85,7 +86,12 @@
 
             </div>
 
-            <div style="height:200px;"></div>
+            <!-- json格式展示 -->
+            <div class="key-json-main" v-show="listType == 'json' || listType == 'toml' || listType == 'yaml'">
+              <codemirror v-model="mainConfig" :options="cmOptionShow" style="border: 1px solid #dcdee2;" ref="listEditor"></codemirror>
+            </div>
+
+            <div style="height:200px;" v-hide="listType == 'json' || listType == 'toml' || listType == 'yaml'"></div>
 
             <div style="clear:both"></div>
             
@@ -149,9 +155,19 @@ require("codemirror/mode/toml/toml");
 require("codemirror/mode/yaml/yaml");
 require("codemirror/mode/xml/xml");
 
+// require('codemirror/addon/hint/show-hint.css');
+// require('codemirror/addon/hint/show-hint');
+// require('codemirror/addon/hint/javascript-hint');
+// require('codemirror/addon/hint/anyword-hint');
+
+
 export default {
   data() {
     return {
+      // json 形式展示
+      mainConfig:'',
+
+
       listTotal:0, // 总条数
       pageSize:10, // 默认10条
       page:1,
@@ -278,6 +294,21 @@ export default {
       // 代码编辑器配置
       cmOption: {
         tabSize: 4,
+        smartIndent: true,
+        styleActiveLine: true,
+        lineNumbers: true,
+        line: true,
+        mode: 'text/javascript',
+        lineWrapping: true,
+        theme: 'default',
+        // lint: true,
+        // gutters: ['CodeMirror-lint-markers'],
+      },
+      // 显示指定格式
+      cmOptionShow: {
+        readOnly:'nocursor',
+        tabSize: 4,
+        smartIndent: true,
         styleActiveLine: true,
         lineNumbers: true,
         line: true,
@@ -285,6 +316,7 @@ export default {
         lineWrapping: true,
         theme: 'default'
       }
+
     };
   },
   mounted() {
@@ -298,6 +330,8 @@ export default {
     // 编辑器高度
     this.$refs.addEditor.codemirror.setSize('auto','60vh');
     this.$refs.showEditor.codemirror.setSize('auto','60vh');
+    this.$refs.listEditor.codemirror.setSize('auto','75vh');
+    
   },
   methods: {
     // 路径文本框回车
@@ -452,6 +486,10 @@ export default {
 
     // 获取key列表
     getKeyList() {
+      if(this.listType == 'json' || this.listType == 'toml' || this.listType == 'yaml'){
+        this.getKeyShowConfig();
+      }
+
       this.keyLoading = true;
       this.$Loading.start();
       let k = this.currentPath;
@@ -516,6 +554,10 @@ export default {
     // 展现方式
     changeListType(){
       localStorage.setItem("list_type", this.listType || 'grid');
+      if(this.listType == 'json' || this.listType == 'toml' || this.listType == 'yaml'){        
+        this.getKeyShowConfig();
+        return
+      }
       console.log(this.baseList)
       this.changeListPage(1);
       this.page = 1;
@@ -586,7 +628,30 @@ export default {
       this.currentPath = this.keyPrefix;
       this.getKeyList();
       localStorage.setItem("etcdName",this.etcdName)
-    }
+    },
+
+    // 获取当前key的json展现方式
+    getKeyShowConfig(){
+      this.$Loading.start();
+      this.$http.get(`/v1/key/format?format=${this.listType}&key=${this.currentPath}`,{
+          headers:{
+            "EtcdServerName":this.etcdName,
+          }
+        }).then(response=>{
+        if(response.status == 200){
+          this.mainConfig = response.data;
+          console.log(response)
+          this.$Loading.finish();
+        }else{
+          this.$Loading.error();
+        }
+      }).catch(error=>{
+          if (error.response){
+              this.$Message.error(error.response.data.msg);
+          }
+          this.$Loading.error();
+      });
+    },
 
 
   },
