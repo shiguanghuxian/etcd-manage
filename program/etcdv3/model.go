@@ -72,7 +72,15 @@ func NodeJsonFormat(prefix string, list []*Node) (interface{}, error) {
 		// 		}
 		// 	}
 		// }
+		log.Println("---------------------")
+		log.Println(v.FullDir)
+		log.Println(strs)
+		log.Println(v.Value)
+
 		recursiveJsonMap(strs, v, resp)
+		jjj, _ := json.Marshal(resp)
+		log.Println(string(jjj))
+
 	}
 	jjj, _ := json.Marshal(resp)
 	log.Println(string(jjj))
@@ -81,7 +89,7 @@ func NodeJsonFormat(prefix string, list []*Node) (interface{}, error) {
 
 // 递归的将一个值赋值到map中
 func recursiveJsonMap(strs []string, node *Node, parent map[string]interface{}) interface{} {
-	if len(strs) == 0 || node == nil || parent == nil {
+	if len(strs) == 0 || strs[0] == "" || node == nil || parent == nil {
 		return nil
 	}
 	if _, ok := parent[strs[0]]; ok == false {
@@ -95,7 +103,7 @@ func recursiveJsonMap(strs []string, node *Node, parent map[string]interface{}) 
 	if ok == false {
 		return val
 	}
-	return parent[strs[0]]
+	return recursiveJsonMap(strs[1:], node, val)
 }
 
 // Format 时获取值，转为指定类型

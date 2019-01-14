@@ -323,7 +323,8 @@ func getValueToFormat(c *gin.Context) {
 		if err != nil {
 			return
 		}
-		c.JSON(http.StatusOK, resp)
+		respJs, _ := json.MarshalIndent(resp, "", "    ")
+		c.JSON(http.StatusOK, string(respJs))
 	case "toml":
 
 	default:
