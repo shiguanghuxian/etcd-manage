@@ -1,8 +1,6 @@
 package etcdv3
 
 import (
-	"encoding/json"
-	"log"
 	"strconv"
 	"strings"
 
@@ -13,7 +11,7 @@ import (
 // Node 需要使用到的模型
 type Node struct {
 	IsDir   bool   `json:"is_dir"`
-	Version int64  `json:"version"`
+	Version int64  `json:"version,string"`
 	Value   string `json:"value"`
 	FullDir string `json:"full_dir"`
 }
@@ -72,18 +70,18 @@ func NodeJsonFormat(prefix string, list []*Node) (interface{}, error) {
 		// 		}
 		// 	}
 		// }
-		log.Println("---------------------")
-		log.Println(v.FullDir)
-		log.Println(strs)
-		log.Println(v.Value)
+		// log.Println("---------------------")
+		// log.Println(v.FullDir)
+		// log.Println(strs)
+		// log.Println(v.Value)
 
 		recursiveJsonMap(strs, v, resp)
-		jjj, _ := json.Marshal(resp)
-		log.Println(string(jjj))
+		// jjj, _ := json.Marshal(resp)
+		// log.Println(string(jjj))
 
 	}
-	jjj, _ := json.Marshal(resp)
-	log.Println(string(jjj))
+	// jjj, _ := json.Marshal(resp)
+	// log.Println(string(jjj))
 	return resp, nil
 }
 

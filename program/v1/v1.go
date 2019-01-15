@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -313,9 +312,12 @@ func getValueToFormat(c *gin.Context) {
 	cli := etcdCli.(*etcdv3.Etcd3Client)
 
 	list, err := cli.GetRecursiveValue(key)
+	if err != nil {
+		return
+	}
 
-	js, _ := json.Marshal(list)
-	log.Println(string(js))
+	// js, _ := json.Marshal(list)
+	// log.Println(string(js))
 
 	switch format {
 	case "json":
@@ -325,6 +327,7 @@ func getValueToFormat(c *gin.Context) {
 		}
 		respJs, _ := json.MarshalIndent(resp, "", "    ")
 		c.JSON(http.StatusOK, string(respJs))
+		return
 	case "toml":
 
 	default:
