@@ -106,6 +106,9 @@
                 <FormItem label="Key" prop="key">
                     <Input v-model="showKeyInfo.full_dir" disabled placeholder="key"></Input>
                 </FormItem>
+                <FormItem label="Version" prop="version">
+                    <Input v-model="showKeyInfo.version" disabled placeholder="Version"></Input>
+                </FormItem>
                 <FormItem label="Value" prop="value" >
                   <codemirror v-model="showKeyInfo.value" :options="cmOption" style="line-height:20px;border: 1px solid #dcdee2;" ref="showEditor"></codemirror>
                 </FormItem>
@@ -237,6 +240,10 @@ export default {
         {
           title: "KEY",
           key: "full_dir"
+        },
+        {
+          title: "Version",
+          key: "version"
         },
         {
           title: " ",
