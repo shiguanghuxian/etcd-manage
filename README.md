@@ -12,6 +12,16 @@
 2. 支持Basic Auth用户验证登录，可以通过配置文件添加用户并设置用户角色实现用户可访问etcd server的空。
 
 
+
+## Demo
+
+demo地址： [Demo](http://140.143.234.132:10280/ui/#/keys)
+
+用户名：admin
+
+密码：123456
+
+
 ## 使用
 
 可以直接通过docker-compose将服务运行在docker中，可以参考 [https://github.com/shiguanghuxian/docker-compose/tree/master/etcd33](https://github.com/shiguanghuxian/docker-compose/tree/master/etcd33)直接使用。
