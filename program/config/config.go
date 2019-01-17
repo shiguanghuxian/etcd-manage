@@ -1,7 +1,9 @@
 package config
 
 import (
+	"errors"
 	"os"
+	"regexp"
 
 	"github.com/naoina/toml"
 	"github.com/shiguanghuxian/etcd-manage/program/common"
@@ -110,6 +112,13 @@ func LoadConfig(cfgPath string) (*Config, error) {
 		return nil, err
 	}
 
+	// 验证服务name是否非字母和数字
+	for _, v := range cfg.Server {
+		if chackEtcdServerName(v.Name) == false {
+			return nil, errors.New("etcd server name can only be letters or numbers or '_'")
+		}
+	}
+
 	return cfg, nil
 }
 
@@ -118,4 +127,13 @@ func getCfgPath(cfgPath string) string {
 		cfgPath = common.GetRootDir() + "config/cfg.toml"
 	}
 	return cfgPath
+}
+
+// 判断etcd服务名是否包含非字母和数字
+func chackEtcdServerName(name string) bool {
+	if name == "" {
+		return false
+	}
+	reg := regexp.MustCompile("[^0-9A-Za-z_]+")
+	return !reg.MatchString(name)
 }

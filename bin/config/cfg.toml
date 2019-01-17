@@ -27,7 +27,7 @@ key_file = "key_file"
 [[server]]
 # 显示名称
 title = "make docker_cluster_run"
-# 标识名
+# 标识名 - 只能是字母数字或下划线
 name = "docker_cluster_run"
 # etcd连接地址 如果为集群请填写全部地址
 address = ["etcd0:2379","etcd1:2379","etcd2:2379"]
