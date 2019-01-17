@@ -1,10 +1,10 @@
 package program
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os/exec"
+	"runtime"
 	"time"
 
 	"github.com/shiguanghuxian/etcd-manage/program/config"
@@ -31,8 +31,8 @@ func New() (*Program, error) {
 		return nil, err
 	}
 
-	jj, _ := json.Marshal(cfg)
-	fmt.Println(string(jj))
+	// jj, _ := json.Marshal(cfg)
+	// fmt.Println(string(jj))
 
 	return &Program{
 		cfg: cfg,
@@ -47,8 +47,7 @@ func (p *Program) Run() error {
 	// 打开浏览器
 	go func() {
 		time.Sleep(100 * time.Millisecond)
-		cmd := exec.Command("open", fmt.Sprintf("http://127.0.0.1:%d/ui/", p.cfg.HTTP.Port))
-		cmd.Run()
+		openURL(fmt.Sprintf("http://127.0.0.1:%d/ui/", p.cfg.HTTP.Port))
 	}()
 
 	return nil
@@ -61,5 +60,18 @@ func (p *Program) Stop() {
 	}
 }
 
-// 重新加载配置文件
-// 使用go-cache
+// 打开url
+func openURL(urlAddr string) {
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("cmd", " /c start "+urlAddr)
+	} else if runtime.GOOS == "darwin" {
+		cmd = exec.Command("open", urlAddr)
+	} else {
+		return
+	}
+	err := cmd.Start()
+	if err != nil {
+		logger.Log.Errorw("打开浏览器错误", "err", err)
+	}
+}
