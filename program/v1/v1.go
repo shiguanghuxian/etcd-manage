@@ -27,6 +27,8 @@ func V1(v1 *gin.RouterGroup) {
 	v1.PUT("/key", putEtcdKey)         // 修改key
 	v1.DELETE("/key", delEtcdKey)      // 删除key
 
+	v1.GET("/restore", restoreDirKey) // 修复目录不兼容问题
+
 	v1.GET("/key/format", getValueToFormat) // 格式化为json或toml
 
 	v1.GET("/server", getEtcdServerList) // 获取etcd服务列表
@@ -517,4 +519,64 @@ func saveLog(c *gin.Context, msg string) {
 	}
 	// 存储日志
 	logger.Log.Infow(msg, "user", user, "role", userRole)
+}
+
+// 修复老数据目录问题
+func restoreDirKey(c *gin.Context) {
+	var err error
+	defer func() {
+		if err != nil {
+			logger.Log.Errorw("修复数据错误", "err", err)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"msg": err.Error(),
+			})
+		}
+	}()
+
+	etcdCli, exists := c.Get("EtcdServer")
+	if exists == false {
+		err = errors.New("Etcd client is empty")
+		return
+	}
+	cli := etcdCli.(*etcdv3.Etcd3Client)
+
+	list, err := cli.GetRecursiveValue("")
+	if err != nil {
+		return
+	}
+
+	// 检查所有key
+	for _, one := range list {
+		// fmt.Println(one.FullDir)
+		keys := strings.Split(one.FullDir, "/")
+		if len(keys) == 0 {
+			continue
+		}
+		key := ""
+		for ki, k := range keys {
+			// 不处理最后一个
+			if len(keys)-1 == ki {
+				continue
+			}
+			if key != "/" { // 防止两个//和兼容key不是从/开始
+				key += "/"
+			}
+			key += k
+			if keys[0] != "" {
+				key = strings.TrimLeft(key, "/")
+			}
+			/* 设置此路径为新建，并且值为目录 */
+			// 判断是否存在
+			if _, keyExistErr := cli.Value(key); keyExistErr == etcdv3.ErrorKeyNotFound {
+				err = cli.Put(key, etcdv3.DEFAULT_DIR_VALUE, true)
+				if err != nil {
+					return
+				}
+			}
+
+			// fmt.Println(key)
+		}
+	}
+
+	c.JSON(http.StatusOK, list)
 }
