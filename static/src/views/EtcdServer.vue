@@ -40,6 +40,37 @@ export default {
                 {
                     title: 'Desc',
                     key: 'Desc'
+                },
+                {
+                    title: 'Action',
+                    key: 'action',
+                    width: 150,
+                    align: 'center',
+                    render: (h, params) => {
+                        return h('div', [
+                            h('Poptip', {
+                                props: {
+                                    confirm: true,
+                                    title:'确定修复etcd key的目录问题？'
+                                },
+                                on: {
+                                    "on-ok": () => {
+                                        this.restore(params.row);
+                                    }
+                                }
+                            },[
+                                h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    }
+                                }, '修复目录'),
+                            ])
+                        ]);
+                    }
                 }
             ],
             data:[],
@@ -74,6 +105,24 @@ export default {
             this.pageSize = pageSize;
             this.changeListPage(1);
             this.page = 1;
+        },
+
+        // 修复该服务目录问题
+        restore(row){
+            // console.log(row)
+            this.$http.get(`/v1/restore`,{
+                headers:{
+                    "EtcdServerName":row.Name,
+                }
+            }).then(response=>{
+                if(response.status == 200){
+                    this.$Message.info('OK');
+                }
+            }).catch(error=>{
+                if (error.response){
+                    this.$Message.error(error.response.data.msg);
+                }
+            });
         }
     },
     mounted(){
