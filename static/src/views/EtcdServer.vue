@@ -51,7 +51,7 @@ export default {
                             h('Poptip', {
                                 props: {
                                     confirm: true,
-                                    title:'确定修复etcd key的目录问题？'
+                                    title:this.$t('etcdServer.determineRepairDirectory')
                                 },
                                 on: {
                                     "on-ok": () => {
@@ -67,7 +67,7 @@ export default {
                                     style: {
                                         marginRight: '5px'
                                     }
-                                }, '修复目录'),
+                                }, this.$t('etcdServer.repairDirectory')),
                             ])
                         ]);
                     }
