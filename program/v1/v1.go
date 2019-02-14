@@ -41,14 +41,14 @@ func V1(v1 *gin.RouterGroup) {
 
 // 获取etcd key列表
 func getEtcdKeyList(c *gin.Context) {
-	go saveLog(c, "获取列表")
+	go saveLog(c, "Get the key list")
 
 	key := c.Query("key")
 
 	var err error
 	defer func() {
 		if err != nil {
-			logger.Log.Errorw("获取key列表错误", "err", err)
+			logger.Log.Errorw("Get key list error", "err", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": err.Error(),
 			})
@@ -82,13 +82,13 @@ func getEtcdKeyList(c *gin.Context) {
 
 // 获取key的值
 func getEtcdKeyValue(c *gin.Context) {
-	go saveLog(c, "获取key的值")
+	go saveLog(c, "Get the value of the key")
 
 	key := c.Query("key")
 	var err error
 	defer func() {
 		if err != nil {
-			logger.Log.Errorw("获取key值的值错误", "err", err)
+			logger.Log.Errorw("Get the value of the key value incorrectly", "err", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": err.Error(),
 			})
@@ -114,12 +114,12 @@ func getEtcdKeyValue(c *gin.Context) {
 
 // 获取服务节点
 func getEtcdMembers(c *gin.Context) {
-	go saveLog(c, "获取etcd集群信息")
+	go saveLog(c, "Get etcd cluster information")
 
 	var err error
 	defer func() {
 		if err != nil {
-			logger.Log.Errorw("获取服务节点错误", "err", err)
+			logger.Log.Errorw("Get service node error", "err", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": err.Error(),
 			})
@@ -161,14 +161,14 @@ func putEtcdKey(c *gin.Context) {
 
 // 删除key
 func delEtcdKey(c *gin.Context) {
-	go saveLog(c, "删除key")
+	go saveLog(c, "Delete key")
 
 	key := c.Query("key")
 
 	var err error
 	defer func() {
 		if err != nil {
-			logger.Log.Errorw("删除key错误", "err", err)
+			logger.Log.Errorw("Delete key error", "err", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": err.Error(),
 			})
@@ -194,12 +194,12 @@ func delEtcdKey(c *gin.Context) {
 
 // 保存key
 func saveEtcdKey(c *gin.Context, isPut bool) {
-	go saveLog(c, "保存key")
+	go saveLog(c, "Save key")
 
 	var err error
 	defer func() {
 		if err != nil {
-			logger.Log.Errorw("保存key错误", "err", err)
+			logger.Log.Errorw("Save key error", "err", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": err.Error(),
 			})
@@ -212,7 +212,7 @@ func saveEtcdKey(c *gin.Context, isPut bool) {
 		return
 	}
 	if req.FullDir == "" {
-		err = errors.New("参数错误")
+		err = errors.New("Parameter error")
 		return
 	}
 
@@ -274,7 +274,7 @@ func saveEtcdKey(c *gin.Context, isPut bool) {
 	// 保存key
 	if req.IsDir == true {
 		if isPut == true {
-			err = errors.New("目录不能修改")
+			err = errors.New("Directory cannot be modified")
 		} else {
 			err = cli.Put(req.FullDir, etcdv3.DEFAULT_DIR_VALUE, !isPut)
 		}
@@ -291,7 +291,7 @@ func saveEtcdKey(c *gin.Context, isPut bool) {
 
 // 获取key前缀，下的值为指定格式 josn toml
 func getValueToFormat(c *gin.Context) {
-	go saveLog(c, "格式化显示key")
+	go saveLog(c, "Format display key")
 
 	format := c.Query("format")
 	key := c.Query("key")
@@ -299,7 +299,7 @@ func getValueToFormat(c *gin.Context) {
 	var err error
 	defer func() {
 		if err != nil {
-			logger.Log.Errorw("保存key错误", "err", err)
+			logger.Log.Errorw("Save key error", "err", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": err.Error(),
 			})
@@ -333,18 +333,18 @@ func getValueToFormat(c *gin.Context) {
 	case "toml":
 
 	default:
-		err = errors.New("不支持的格式")
+		err = errors.New("Unsupported format")
 	}
 }
 
 // 获取etcd服务列表
 func getEtcdServerList(c *gin.Context) {
-	go saveLog(c, "获取etcd服务列表")
+	go saveLog(c, "Get the etcd service column table")
 
 	cfg := config.GetCfg()
 	if cfg == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": "配置为nil",
+			"msg": "Configured as nil",
 		})
 		return
 	}
@@ -400,12 +400,13 @@ func getUserList(c *gin.Context) {
 // 获取操作类型列表
 func getLogTypeList(c *gin.Context) {
 	c.JSON(http.StatusOK, []string{
-		"获取列表",
-		"获取key的值",
-		"获取etcd集群信息",
-		"删除key",
-		"保存key",
-		"获取etcd服务列表",
+		"Get the key list",
+		"Format display key",
+		"Get the value of the key",
+		"Get etcd cluster information",
+		"Delete key",
+		"Save key",
+		"Get the etcd service column table",
 	})
 }
 
@@ -429,7 +430,7 @@ func getLogsList(c *gin.Context) {
 	var err error
 	defer func() {
 		if err != nil {
-			logger.Log.Errorw("查看日志错误", "err", err)
+			logger.Log.Errorw("View log errors", "err", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": err.Error(),
 			})
@@ -453,7 +454,7 @@ func getLogsList(c *gin.Context) {
 	// 判断文件是否存在
 	if exists, err := common.PathExists(fileName); exists == false || err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": fmt.Sprintf("[%s]没有日志", dateStr),
+			"msg": fmt.Sprintf("No logs for [%s]", dateStr),
 		})
 		return
 	}
@@ -461,7 +462,7 @@ func getLogsList(c *gin.Context) {
 	file, err := os.Open(fileName)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": "读取日志文件错误",
+			"msg": "Read log file error",
 		})
 		return
 	}
@@ -478,7 +479,7 @@ func getLogsList(c *gin.Context) {
 		oneLog := new(LogLine)
 		err = json.Unmarshal([]byte(logTxt), oneLog)
 		if err != nil {
-			logger.Log.Errorw("解析日志文件错误", "err", err)
+			logger.Log.Errorw("Parse log file error", "err", err)
 			continue
 		}
 		// 只看info类型日志
@@ -526,7 +527,7 @@ func restoreDirKey(c *gin.Context) {
 	var err error
 	defer func() {
 		if err != nil {
-			logger.Log.Errorw("修复数据错误", "err", err)
+			logger.Log.Errorw("Fix data error", "err", err)
 			c.JSON(http.StatusBadRequest, gin.H{
 				"msg": err.Error(),
 			})
