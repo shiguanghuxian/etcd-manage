@@ -24,7 +24,7 @@ func (p *Program) handlerStatic(c *gin.Context) {
 	// 读取模版内容
 	body, err := tpls.Asset(uri)
 	if err != nil {
-		logger.Log.Errorw("UI静态文件读取错误", "err", err)
+		logger.Log.Errorw("UI static file reading error", "err", err)
 		c.Status(http.StatusNotFound)
 		return
 	}

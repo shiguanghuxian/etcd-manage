@@ -29,5 +29,5 @@ func main() {
 	signal.Notify(c, os.Interrupt, os.Kill) // , syscall.SIGUSR1, syscall.SIGUSR2
 	<-c
 	p.Stop()
-	log.Println("程序退出")
+	log.Println("Exit")
 }

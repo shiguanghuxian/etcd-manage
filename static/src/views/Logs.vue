@@ -15,10 +15,10 @@
     <div class="logs">
         <div class="search">
             <Form :rules="ruleInline" inline>
-                <FormItem prop="日期">
+                <FormItem :prop="$t('logs.date')">
                     <DatePicker type="date" placeholder="Select date" style="width: 300px" @on-change="changeDate" format="yyyyMMdd"></DatePicker>
                 </FormItem>
-                <FormItem prop="用户">
+                <FormItem :prop="$t('logs.user')">
                     <Select v-model="user" clearable style="width:200px">
                         <Option v-for="item in users" :value="item.name" :key="item.name">
                             {{ item.name }}
@@ -27,13 +27,13 @@
                         </Option>
                     </Select>
                 </FormItem>
-                <FormItem prop="类型">
+                <FormItem :prop="$t('logs.typeof')">
                     <Select v-model="logType" clearable style="width:200px">
                         <Option v-for="item in logtypes" :value="item" :key="item">{{ item }}</Option>
                     </Select>
                 </FormItem>
                 <FormItem>
-                    <Button type="primary" @click="getList">筛选</Button>
+                    <Button type="primary" @click="getList">{{$t('logs.filter')}}</Button>
                 </FormItem>
             </Form>
         </div>
@@ -80,7 +80,7 @@ export default {
     mounted(){
         this.bindDate = new Date();
         // this.getList();
-        this.$Message.info('选择日期查看日志');
+        this.$Message.info(this.$t('logs.selectDateShowLog'));
 
         // 下拉框数据
         this.getUsers();
@@ -111,7 +111,7 @@ export default {
         // 获取数据
         getList(){
             if (this.date == '' || !this.date){
-                this.$Message.info('请选择日期');
+                this.$Message.info(this.$t('logs.selectDate'));
                 return
             }
             this.loading = true;

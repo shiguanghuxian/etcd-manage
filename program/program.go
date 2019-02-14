@@ -72,6 +72,6 @@ func openURL(urlAddr string) {
 	}
 	err := cmd.Start()
 	if err != nil {
-		logger.Log.Errorw("打开浏览器错误", "err", err)
+		logger.Log.Errorw("Error opening browser", "err", err)
 	}
 }

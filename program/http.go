@@ -51,16 +51,16 @@ func (p *Program) startAPI() {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	log.Println("启动HTTP服务:", addr)
+	log.Println("Start HTTP the service:", addr)
 	var err error
 	if p.cfg.HTTP.TLSEnable == true {
 		if p.cfg.HTTP.TLSConfig == nil || p.cfg.HTTP.TLSConfig.CertFile == "" || p.cfg.HTTP.TLSConfig.KeyFile == "" {
-			log.Fatalln("启用tls必须配置证书文件路径")
+			log.Fatalln("Enable tls must configure certificate file path")
 		}
 		err = s.ListenAndServeTLS(p.cfg.HTTP.TLSConfig.CertFile, p.cfg.HTTP.TLSConfig.KeyFile)
 	} else if p.cfg.HTTP.TLSEncryptEnable == true {
 		if len(p.cfg.HTTP.TLSEncryptDomainNames) == 0 {
-			log.Fatalln("域名列表不能为空")
+			log.Fatalln("The domain name list cannot be empty")
 		}
 		err = autotls.Run(router, p.cfg.HTTP.TLSEncryptDomainNames...)
 	} else {
@@ -129,7 +129,7 @@ func (p *Program) middlewareEtcd() gin.HandlerFunc {
 func getEtcdCli(name, role string) (ctl *etcdv3.Etcd3Client, s *config.EtcdServer, err error) {
 	s = config.GetEtcdServer(name)
 	if s == nil {
-		return nil, nil, errors.New("etcd服务不存在")
+		return nil, nil, errors.New("The etcd service does not exist")
 	}
 	if len(s.Roles) > 0 {
 		isRole := false
@@ -140,7 +140,7 @@ func getEtcdCli(name, role string) (ctl *etcdv3.Etcd3Client, s *config.EtcdServe
 			}
 		}
 		if isRole == false {
-			return nil, nil, errors.New("无权限访问")
+			return nil, nil, errors.New("No access")
 		}
 	}
 	ctl, err = etcdv3.GetEtcdCli(s)

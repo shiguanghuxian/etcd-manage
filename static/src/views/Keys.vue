@@ -273,7 +273,7 @@ export default {
                 {
                   props: {
                     confirm: true,
-                    title: "确定删除"
+                    title: this.$t('public.confirmDelete')
                   },
                   on: {
                     "on-ok": () => {
@@ -392,7 +392,7 @@ export default {
     // 添加key
     addKey() {
       if (this.addKeyInfo.key == "" || typeof this.addKeyInfo.key == "undefined") {
-        this.$Message.warning("key不能为空");
+        this.$Message.warning(this.$t('key.keyNotEmpty'));
         return;
       }
       // console.log(this.currentPath.trim('/'))
@@ -415,7 +415,7 @@ export default {
         }).then(response => {
           console.log(response);
           if(response.status == 200){
-            this.$Message.success("添加成功！");
+            this.$Message.success(this.$t('key.addSuccessfully'));
             this.getKeyList();
             this.addKeyInfo = {};
             this.addKeyInfoModel = false;
@@ -439,7 +439,7 @@ export default {
         .then(response => {
           console.log(response);
           if(response.status == 200){
-            this.$Message.success("保存成功！");
+            this.$Message.success(this.$t('key.saveSuccessfully'));
             this.getKeyList();
             this.showKeyInfoModel = false;
           }
