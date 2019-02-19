@@ -15,6 +15,7 @@ import (
 // 处理静态文件
 func (p *Program) handlerStatic(c *gin.Context) {
 	uri := strings.TrimLeft(c.Request.RequestURI, "/")
+	uri = strings.TrimRight(uri, "?")
 	if uri == "ui/" || uri == "ui" {
 		uri = "dist/index.html"
 	} else {
