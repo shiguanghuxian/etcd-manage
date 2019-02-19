@@ -49,7 +49,7 @@
               </Select>
             </FormItem>
             <FormItem class="search-in">
-              <Input v-model="searchVal" @on-keyup="onSearchLocal">
+              <Input v-model="searchVal" type="text" @on-keyup="onSearchLocal">
                 <Button slot="prepend" type="primary">{{$t('public.screen')}}</Button>
                 <Button slot="append" type="primary" icon="ios-search" @click="onSearchLocal"></Button>
               </Input>
@@ -535,7 +535,10 @@ export default {
     },
 
     // 搜索本地
-    onSearchLocal(){
+    onSearchLocal(e){
+      if (e.keyCode == 13){
+        return
+      }
       console.log(this.searchVal)
       if (this.searchVal == ''){
         this.pageShow = true;
@@ -543,6 +546,9 @@ export default {
         this.pageShow = false;
       }
       let list = [];
+      if(typeof this.baseList == 'undefined'){
+        return
+      }
       this.baseList.forEach(val => {
         let fullDir = val.full_dir.substring(this.currentPath.length+1);
         // console.log(fullDir)
