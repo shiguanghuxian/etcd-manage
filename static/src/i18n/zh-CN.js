@@ -10,6 +10,10 @@ const lang = {
         close:'关闭',
         screen:'本地筛选'
     },
+    header:{
+        'personalCenter':'个人中心',
+        'logout':'退出',
+    },
     key:{
         currentPathTips:'key路径，只能是路径不能是值',
         delConfirm:'确定删除选中的key？',

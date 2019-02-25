@@ -10,6 +10,10 @@ const lang = {
         close:'Close',
         screen:'Local screening'
     },
+    header:{
+        'personalCenter':'Personal Center',
+        'logout':'Logout',
+    },
     key:{
         currentPathTips:'Key can only be a path that cannot be a value.',
         delConfirm:'Are you sure you want to delete the selected key?',

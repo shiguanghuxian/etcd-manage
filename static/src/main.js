@@ -1,8 +1,11 @@
+// The Vue build version to load with the `import` command
+// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
-import App from './App.vue'
+import App from './App'
 import router from './router'
-import axios from 'axios'
-import './plugins/iview.js'
+import iView from 'iview';
+import 'iview/dist/styles/iview.css';
+import './assets/css/base.css'
 
 import VueI18n from 'vue-i18n';
 import en from 'iview/dist/locale/en-US';
@@ -13,41 +16,12 @@ import myzh from './i18n/zh-CN';
 
 Vue.use(VueI18n);
 
-// 编辑器
-import VueCodemirror from 'vue-codemirror'
+Vue.config.productionTip = false
 
-// require styles
-import 'codemirror/lib/codemirror.css'
+Vue.use(iView, {
+  transfer: true
+});
 
-Vue.use(VueCodemirror)
-
-
-Vue.config.productionTip = false;
-
-/* axios */
-// axios.defaults.baseURL = 'http://127.0.0.1:10280';
-
-// 请求拦截器
-axios.interceptors.request.use(function (config) {
-  // 读取本地是否存在用户信息
-  let etcdUserStr = localStorage.getItem('etcdUser');
-  // console.log(etcdUserStr)
-  if(etcdUserStr != null && typeof etcdUserStr != 'undefined'){
-    let etcdUser = JSON.parse(etcdUserStr);
-    if (typeof etcdUser.username != 'undefined' && etcdUser.username != ''){
-      config.headers['X-Etcd-Username'] = etcdUser.username;
-    }
-    if (typeof etcdUser.password != 'undefined' && etcdUser.password != ''){
-      config.headers['X-Etcd-Password'] = etcdUser.password;
-    }
-  }
-  return config;
-}, function (error) {
-  return Promise.reject(error);
-})
-
-
-Vue.prototype.$http = axios;
 
 // 语言
 Vue.locale = () => {};
@@ -57,7 +31,7 @@ const messages = {
     zh: Object.assign(myzh, zh)
 };
 
-let mylang = localStorage.getItem("lang") || 'en';
+let mylang = localStorage.getItem("etcd-language") || 'en';
 
 // Create VueI18n instance with options
 const i18n = new VueI18n({
@@ -65,8 +39,14 @@ const i18n = new VueI18n({
     messages  // set locale messages
 });
 
+
+/* eslint-disable no-new */
 new Vue({
+  el: '#app',
   router,
   i18n,
-  render: h => h(App)
-}).$mount('#app')
+  components: {
+    App
+  },
+  template: '<App/>'
+})
