@@ -11,6 +11,7 @@ import (
 	gin "github.com/gin-gonic/gin"
 	"github.com/shiguanghuxian/etcd-manage/program/config"
 	"github.com/shiguanghuxian/etcd-manage/program/etcdv3"
+	"github.com/shiguanghuxian/etcd-manage/program/logger"
 	"github.com/shiguanghuxian/etcd-manage/program/v1"
 )
 
@@ -117,6 +118,8 @@ func (p *Program) middlewareEtcd() gin.HandlerFunc {
 			if err == nil {
 				c.Set("EtcdServer", cli)
 				c.Set("EtcdServerCfg", s)
+			} else {
+				logger.Log.Errorw("建立etcd连接错误", "err", err)
 			}
 		}
 
