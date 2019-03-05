@@ -13,6 +13,9 @@ export default {
 <style>
 .cloud-container{
     width: 100%;
-    height: 200%;
+    height: 100%;
+    overflow-y: scroll;
+    /* padding: 10px; */
+    /* background: #f5f7f9; */
 }
 </style>

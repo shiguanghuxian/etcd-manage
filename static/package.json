@@ -10,8 +10,10 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "iview": "^3.2.2",
     "vue": "^2.5.2",
+    "vue-codemirror": "^4.0.6",
     "vue-i18n": "^8.8.2",
     "vue-router": "^3.0.1"
   },

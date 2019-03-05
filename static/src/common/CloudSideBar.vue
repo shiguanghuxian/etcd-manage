@@ -4,6 +4,7 @@
       <!-- 展开和隐藏按钮 -->
       <div class="narrow-wrapper" @click="changeUnfoldStatus(1)" v-if="!isUnfold">
         <i class="iconfont icon-zhankaianniuicon narrow-icon"></i>
+        <!-- <Icon type="ios-menu" class="icon1" /> -->
       </div>
       <div class="unfold-wrapper" @click="changeUnfoldStatus(0)" v-else>
         <i class="iconfont icon-icon01 unfold-icon"></i>
@@ -14,14 +15,16 @@
       <ul class="first-menu-wrapper">
         <li class="item-menu-wrapper" v-for="(unfoldItem,unfoldItemIndex) in menuList" :key="unfoldItemIndex">
           <div class="item-menu-title" @click="unfoldItemMenu(unfoldItem,unfoldItemIndex)" >
-            <img src="../assets/img/down.png" alt="" v-if="unfoldItemMenuIndex==unfoldItemIndex">
-            <img src="../assets/img/right.png" alt="" v-else>
+            <Icon type="ios-arrow-down" class="icon1" v-if="unfoldItemMenuIndex==unfoldItemIndex" />
+            <Icon type="ios-arrow-forward" class="icon1" v-else />
+            <!-- <img src="../assets/img/down.png" alt="" v-if="unfoldItemMenuIndex==unfoldItemIndex"> -->
             <span v-if="!isUnfold">{{unfoldItem.mainTitle}}</span> 
           </div>
           <ul class="item-menu-list" :unfoldItemIndex="unfoldItemIndex" v-show="unfoldItemMenuIndex==unfoldItemIndex">
             <li v-for="(mainMenuItem,index) in unfoldItem.submenuList" :key="index" @click="computeSubMenuList(mainMenuItem)">
               <div class="submenu">
-                <i class="iconfont" :class="mainMenuItem.icon"></i>
+                <Icon :type="mainMenuItem.icon" class="icon1" />
+                <!-- <i class="iconfont" :class="mainMenuItem.icon"></i> -->
                 <span v-if="!isUnfold">{{mainMenuItem.submenuTitle}}</span>
               </div>
             </li>
@@ -39,26 +42,22 @@ export default {
     return {
       isUnfold: false, // 判断展开还是隐藏一级菜单,
       unfoldItemMenuIndex: 0, // 判断展开还是隐藏一个菜单列表
-      isShowMainMenu: false,
-      menuArr: [
-        {
-          type: 1,
-          menuList: [
+      menuList: [
             {
               main_memu_id: 0,
               mainTitle: "KEY",
               submenuList: [
                 {
-                  submenuTitle: "KV",
-                  icon: "icon-yunguanjia",
-                  submenuID: 1,
+                  submenuTitle: "Key / Value",
+                  icon: "logo-buffer",
+                  submenuID: 0,
                   path: '/key/kv'
                 },
                 {
-                  submenuTitle: "SRV",
-                  icon: "icon-yuming",
-                  submenuID: 2,
-                  path: '/cloud/page2'
+                  submenuTitle: "MEMBERS",
+                  icon: "ios-desktop",
+                  submenuID: 1,
+                  path: '/server/members'
                 }
               ]
             },
@@ -68,22 +67,19 @@ export default {
               submenuList: [
                 {
                   submenuTitle: "机器学习",
-                  submenuID: 3,
+                  submenuID: 2,
                   icon: "icon-xuexi",
-                  path: '/cloud/page3'
+                  path: '/key/kv'
                 },
                 {
                   submenuTitle: "数据集成",
-                  submenuID: 4,
+                  submenuID: 3,
                   icon: "icon-shuju",
-                  path: '/cloud/page5'
+                  path: '/key/kv'
                 }
               ]
             }
           ]
-        }
-      ],
-      menuList: []
     };
   },
   methods: {
@@ -127,13 +123,6 @@ export default {
     }
   },
   created() {
-    // 通过不同权限显示不同页面
-    let type = 1;
-    this.menuArr.map(v => {
-      if (v.type == type) {
-        this.menuList = v.menuList;
-      }
-    });
   },
   mounted() {
     if (sessionStorage.getItem("isUnfold")) {
@@ -256,6 +245,11 @@ export default {
         }
       }
     }
+  }
+  .icon1{
+    font-size: 18px;
+    width: 50px;
+    text-align: center;
   }
 }
 </style>

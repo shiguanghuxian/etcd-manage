@@ -11,7 +11,7 @@ import (
 	gin "github.com/gin-gonic/gin"
 	"github.com/shiguanghuxian/etcd-manage/program/config"
 	"github.com/shiguanghuxian/etcd-manage/program/etcdv3"
-	"github.com/shiguanghuxian/etcd-manage/program/v1"
+	v1 "github.com/shiguanghuxian/etcd-manage/program/v1"
 )
 
 // http 服务
@@ -74,16 +74,21 @@ func (p *Program) startAPI() {
 // 跨域中间件
 func (p *Program) middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// gin设置响应头，设置跨域
+
+		method := c.Request.Method
+
 		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization, Access-Control-Allow-Origin")
+		c.Header("Access-Control-Allow-Headers", "Content-Type,AccessToken,X-CSRF-Token, Authorization, Token, EtcdServerName")
+		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT")
 		c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Content-Type")
+		c.Header("Access-Control-Allow-Credentials", "true")
 
 		//放行所有OPTIONS方法
-		if c.Request.Method == "OPTIONS" {
-			c.Status(http.StatusOK)
+		if method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
 		}
+		// 处理请求
+		c.Next()
 	}
 }
 

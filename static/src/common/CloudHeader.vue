@@ -5,14 +5,17 @@
       Etcd-Manager
     </div>
     <div class="server" @mouseenter="hover(1, 1)" @mouseleave="hover(1, 2)">
-      <Dropdown trigger="click" style="margin-left: 20px">
-        <span>ETCD1
+      <Dropdown trigger="click" style="margin-left: 20px" @on-click="onEtcdServer">
+        <span>{{etcdSelectName}}
           <Icon type="ios-arrow-down"></Icon>
         </span>
         <DropdownMenu slot="list">
-          <DropdownItem>ETCD1</DropdownItem>
-          <DropdownItem divided>ETCD2</DropdownItem>
-          <DropdownItem divided>ETCD3</DropdownItem>
+          <DropdownItem
+            v-for="(item, index) in etcdServers"
+            :key="index"
+            :divided="index > 0"
+            :name="item.Name"
+          >{{ item.Name }}</DropdownItem>
         </DropdownMenu>
       </Dropdown>
     </div>
@@ -30,7 +33,8 @@
     </div>
     <div class="language" @mouseenter="hover(5, 1)" @mouseleave="hover(5, 2)">
       <Dropdown trigger="click" style="margin-left: 20px" @on-click="changeLanguage">
-        <span>{{ showLang }}
+        <span>
+          {{ showLang }}
           <Icon type="ios-arrow-down"></Icon>
         </span>
         <DropdownMenu slot="list">
@@ -43,11 +47,16 @@
 </template>
 
 <script>
+import { SERVER } from "@/api/server.js";
+import { bus } from "@/page/bus.js";
+
 export default {
   data() {
     return {
-      showLang:'Lang',
-      lang:'en',
+      showLang: "Lang",
+      lang: "en",
+      etcdServers: [], // etcd 服务列表
+      etcdSelectName: '', // 选中的etcd server
     };
   },
   methods: {
@@ -84,19 +93,48 @@ export default {
     },
 
     // 切换语言
-    changeLanguage(name){
+    changeLanguage(name) {
       this.lang = name;
-      if (name == 'zh'){
-        this.showLang = '语言';
-      }else{
-        this.showLang = 'Lang';
+      if (name == "zh") {
+        this.showLang = "语言";
+      } else {
+        this.showLang = "Lang";
       }
       this.$i18n.locale = name;
-      localStorage.setItem('etcd-language', name);
+      localStorage.setItem("etcd-language", name);
+    },
+
+    // 获取etcd server列表
+    getEtcdServers() {
+      SERVER.GetEtcdServerList().then(response => {
+        this.etcdServers = response.data || [];
+        if(this.etcdSelectName == '' && this.etcdServers.length > 0){
+          this.etcdSelectName = this.etcdServers[0].Name;
+        }
+      });
+    },
+
+    // 选择etcd服务
+    onEtcdServer(name) {
+      this.etcdSelectName = name;
+      localStorage.setItem("etcd-name", name);
+      let item = {};
+      this.etcdServers.forEach(val => {
+        if(val.Name == name){
+          item = val;
+        }
+      });
+      console.log(name);
+      bus.$emit('etcd-server-selected', item);
     }
+
   },
-  created(){
-    let lang = localStorage.getItem('etcd-language') || 'en';
+  mounted() {
+    this.getEtcdServers();
+  },
+  created() {
+    let lang = localStorage.getItem("etcd-language") || "en";
+    this.etcdSelectName = localStorage.getItem('etcd-name') || '';
     this.changeLanguage(lang);
   }
 };
@@ -120,7 +158,7 @@ export default {
     float: left;
     line-height: 50px;
     text-align: center;
-    font-size: 25px;
+    font-size: 20px;
     font-weight: bold;
   }
   .server {
@@ -139,7 +177,7 @@ export default {
     float: right;
     padding: 0 20px 0 20px;
   }
-  .language{
+  .language {
     width: auto;
     height: 100%;
     float: right;

@@ -14,6 +14,16 @@ import zh from 'iview/dist/locale/zh-CN';
 import myen from './i18n/en-US';
 import myzh from './i18n/zh-CN';
 
+
+// 编辑器
+import VueCodemirror from 'vue-codemirror'
+
+// require styles
+import 'codemirror/lib/codemirror.css'
+
+Vue.use(VueCodemirror)
+
+
 Vue.use(VueI18n);
 
 Vue.config.productionTip = false
