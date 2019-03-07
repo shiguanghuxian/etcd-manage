@@ -11,6 +11,8 @@
       </div>
 
       <div class="btns">
+        <Checkbox v-model="showTree" @on-change="onShowTree">{{$t('key.showTree')}}</Checkbox>
+
         <RadioGroup v-model="listType" type="button" @on-change="changeListType">
           <Radio label="grid">
             <Icon type="md-grid"/>
@@ -119,33 +121,38 @@ export default {
       showSplit: 0.15, // 分隔面板比例
       screenHeight: document.documentElement.clientHeight, // 屏幕高度
 
+      showTree: true, // 是否显示左侧菜单
       treeData: [
         {
           title: "parent",
           loading: false,
           children: [],
-          full_dir: '/', // 默认前缀
+          full_dir: "/", // 默认前缀
           render: (h, { root, node, data }) => {
-            return h("span",{
-                style:{
-                    cursor: 'pointer'
-                },
-                on:{
-                    click: () => {
-                        this.getList(data.full_dir);
-                    }
-                }
-            }, [
-              h("Icon", {
-                props: {
-                  type: "ios-home-outline"
-                },
+            return h(
+              "span",
+              {
                 style: {
-                  marginRight: "3px"
+                  cursor: "pointer"
+                },
+                on: {
+                  click: () => {
+                    this.getList(data.full_dir);
+                  }
                 }
-              }),
-              h("span", data.title)
-            ]);
+              },
+              [
+                h("Icon", {
+                  props: {
+                    type: "ios-home-outline"
+                  },
+                  style: {
+                    marginRight: "3px"
+                  }
+                }),
+                h("span", data.title)
+              ]
+            );
           }
         }
       ], // 树形
@@ -181,18 +188,27 @@ export default {
     // 编辑器高度
     this.$refs.addEditor.codemirror.setSize("auto", "60vh");
     this.$refs.showEditor.codemirror.setSize("auto", "60vh");
+    // 加载是否显示树形
+    let showTree = localStorage.getItem('show-tree') || 'true';
+    if (showTree == 'true'){
+      this.showTree = true;
+    }else{
+      this.showTree = false;
+      this.showSplit = 0;
+    }
 
-    bus.$off('etcd-server-selected');
-    bus.$on('etcd-server-selected', (item) => {
-        console.log(item);
-        this.getList();
-    })
+    // 选择etcd服务事件
+    bus.$off("etcd-server-selected");
+    bus.$on("etcd-server-selected", item => {
+      console.log(item);
+      this.getList();
+    });
   },
   methods: {
     // 获取 key 列表
     getList(dir) {
-      if(typeof dir == 'undefined'){
-        dir = '/'; // todo 需要换成前缀
+      if (typeof dir == "undefined") {
+        dir = "/"; // todo 需要换成前缀
       }
       this.fullDir = dir || this.fullDir;
       if (this.listType == "grid") {
@@ -347,12 +363,27 @@ export default {
     },
 
     // 面板拖动
-    moveEndSplit(){
-        if(this.showSplit < 0.03){
-            this.showSplit = 0;
-        }
-    }
+    moveEndSplit() {
+      if (this.showSplit < 0.03) {
+        this.showSplit = 0;
+        this.showTree = false;
+      } else {
+        this.showTree = true;
+      }
+    },
 
+    // 隐藏显示左侧树形菜单
+    onShowTree(show) {
+      console.log(show);
+      this.showTree = show;
+      if (show == true) {
+        if (this.showSplit < 0.15) {
+          this.showSplit = 0.15;
+        }
+      } else {
+        this.showSplit = 0;
+      }
+    }
   },
 
   // 监听当前路径key
@@ -365,6 +396,9 @@ export default {
         this.breadcrumb = newFullDir.split("/");
       }
       console.log(this.breadcrumb);
+    },
+    showTree(newShow){
+      localStorage.setItem('show-tree', newShow);
     }
   }
 };
@@ -405,11 +439,11 @@ export default {
 
   .split-left {
     padding-left: 10px;
-    .ivu-tree ul{
-        font-size: 15px !important;
-        li{
-          margin: 3px 0;
-        }
+    .ivu-tree ul {
+      font-size: 15px !important;
+      li {
+        margin: 3px 0;
+      }
     }
   }
   .split-right {

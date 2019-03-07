@@ -24,7 +24,8 @@ const lang = {
         show:'查看',
         keyNotEmpty:'key不能为空',
         addSuccessfully:'添加成功！',
-        saveSuccessfully:'保存成功！'
+        saveSuccessfully:'保存成功！',
+        showTree: '显示树形'
     },
     logs:{
         date:'日期',

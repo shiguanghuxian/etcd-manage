@@ -15,8 +15,14 @@
       <ul class="first-menu-wrapper">
         <li class="item-menu-wrapper" v-for="(unfoldItem,unfoldItemIndex) in menuList" :key="unfoldItemIndex">
           <div class="item-menu-title" @click="unfoldItemMenu(unfoldItem,unfoldItemIndex)" >
-            <Icon type="ios-arrow-down" class="icon1" v-if="unfoldItemMenuIndex==unfoldItemIndex" />
-            <Icon type="ios-arrow-forward" class="icon1" v-else />
+            <div v-if="unfoldItem.submenuList.length > 0">
+              <Icon type="ios-arrow-down" class="icon1" v-if="unfoldItemMenuIndex==unfoldItemIndex" />
+              <Icon type="ios-arrow-forward" class="icon1" v-else />
+            </div>
+            <div v-else>
+              <Icon type="ios-book-outline" class="icon1" />
+            </div>
+
             <!-- <img src="../assets/img/down.png" alt="" v-if="unfoldItemMenuIndex==unfoldItemIndex"> -->
             <span v-if="!isUnfold">{{unfoldItem.mainTitle}}</span> 
           </div>
@@ -45,7 +51,7 @@ export default {
       menuList: [
             {
               main_memu_id: 0,
-              mainTitle: "KEY",
+              mainTitle: "One Etcd",
               submenuList: [
                 {
                   submenuTitle: "Key / Value",
