@@ -51,16 +51,16 @@ export default {
       menuList: [
             {
               main_memu_id: 0,
-              mainTitle: "One Etcd",
+              mainTitle: this.$t('sideBar.oneEtcd'),
               submenuList: [
                 {
-                  submenuTitle: "Key / Value",
+                  submenuTitle: this.$t('sideBar.KV'),
                   icon: "logo-buffer",
                   submenuID: 0,
                   path: '/key/kv'
                 },
                 {
-                  submenuTitle: "MEMBERS",
+                  submenuTitle: this.$t('sideBar.MEMBERS'),
                   icon: "ios-desktop",
                   submenuID: 1,
                   path: '/server/members'
@@ -69,19 +69,19 @@ export default {
             },
             {
               main_memu_id: 1,
-              mainTitle: "大数据",
+              mainTitle: this.$t('sideBar.Other'),
               submenuList: [
                 {
-                  submenuTitle: "机器学习",
+                  submenuTitle: this.$t('sideBar.EtcdServers'),
                   submenuID: 2,
-                  icon: "icon-xuexi",
-                  path: '/key/kv'
+                  icon: "md-filing",
+                  path: '/other/EtcdServers'
                 },
                 {
-                  submenuTitle: "数据集成",
+                  submenuTitle: this.$t('sideBar.Logs'),
                   submenuID: 3,
-                  icon: "icon-shuju",
-                  path: '/key/kv'
+                  icon: "md-copy",
+                  path: '/other/Logs'
                 }
               ]
             }

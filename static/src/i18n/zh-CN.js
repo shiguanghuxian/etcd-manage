@@ -1,4 +1,18 @@
 const lang = {
+    sideBar: {
+        oneEtcd: '一个Etcd服务',
+        KV: '键 / 值',
+        MEMBERS: '集群信息',
+        Other: '其它',
+        EtcdServers: 'Etcd 服务列表',
+        Logs: '日志'
+    },
+    login:{
+        title: '登 录',
+        username: '用户名',
+        password: '密  码',
+        loginBtn: '登  录'
+    },
     public:{
         add:'添加',
         edit:"编辑",

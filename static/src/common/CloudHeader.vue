@@ -21,13 +21,13 @@
     </div>
     <div class="user" @mouseenter="hover(3, 1)" @mouseleave="hover(3, 2)">
       <Avatar size="small" icon="ios-person"/>
-      <Dropdown>
-        <span>时光弧线
+      <Dropdown @on-click="changeUser">
+        <span> {{ username }}
           <Icon type="ios-arrow-down"></Icon>
         </span>
         <DropdownMenu slot="list">
-          <DropdownItem>{{$t('header.personalCenter')}}</DropdownItem>
-          <DropdownItem style="color: #ed4014">{{$t('header.logout')}}</DropdownItem>
+          <!-- <DropdownItem>{{$t('header.personalCenter')}}</DropdownItem> -->
+          <DropdownItem style="color: #ed4014" name="logout">{{$t('header.logout')}}</DropdownItem>
         </DropdownMenu>
       </Dropdown>
     </div>
@@ -53,6 +53,7 @@ import { bus } from "@/page/bus.js";
 export default {
   data() {
     return {
+      username: '',
       showLang: "Lang",
       lang: "en",
       etcdServers: [], // etcd 服务列表
@@ -104,6 +105,14 @@ export default {
       localStorage.setItem("etcd-language", name);
     },
 
+    // 退出
+    changeUser(name){
+      if(name == 'logout'){
+        sessionStorage.removeItem('login-info');
+        this.$router.go(0);
+      }
+    },
+
     // 获取etcd server列表
     getEtcdServers() {
       SERVER.GetEtcdServerList().then(response => {
@@ -131,6 +140,11 @@ export default {
   },
   mounted() {
     this.getEtcdServers();
+    // 加载用户信息
+    let loginInfoStr = sessionStorage.getItem('login-info');
+    if(loginInfoStr){
+      this.username = JSON.parse(loginInfoStr).username;
+    }
   },
   created() {
     let lang = localStorage.getItem("etcd-language") || "en";

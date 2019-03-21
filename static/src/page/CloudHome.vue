@@ -13,6 +13,27 @@
         </CloudContainer>
       </div> 
     </div>
+    <!-- 登录弹框 -->
+    <Modal
+        :title="$t('login.title')"
+        v-model="showLogin"
+        :mask-closable="false"
+        :closable="false">
+        <Form :model="loginForm" :label-width="80">
+          
+          <FormItem :label="$t('login.username')">
+              <Input v-model="loginForm.username" :placeholder="$t('login.username')"></Input>
+          </FormItem>
+          <FormItem :label="$t('login.password')">
+              <Input v-model="loginForm.password" type="password" :placeholder="$t('login.password')"></Input>
+          </FormItem>
+        </Form>
+        <div slot="footer">
+            <Button type="success" size="large" @click="onLogin">{{ $t('login.loginBtn') }}</Button>
+          </div>
+    </Modal>
+    <!-- end 登录弹框 -->
+
   </div>
 </template>
 
@@ -20,15 +41,36 @@
 import CloudHeader from "../common/CloudHeader";
 import CloudSideBar from "../common/CloudSideBar";
 import CloudContainer from "../common/CloudContainer";
+import { bus } from "@/page/bus.js";
+
 export default {
   name: "CloudHome",
   data() {
-    return {};
+    return {
+      loginForm: {}, // 登录信息
+      showLogin: false // 是否显示登录框
+    };
   },
   components: {
     CloudHeader,
     CloudSideBar,
     CloudContainer
+  },
+  mounted(){
+    // 选择etcd服务事件
+    bus.$off("show-login");
+    bus.$on("show-login", item => {
+      // 显示登录框
+      console.log('请登录', item);
+      this.showLogin = item;
+    });
+  },
+  methods:{
+    onLogin(){
+      console.log(this.loginForm);
+      sessionStorage.setItem('login-info', JSON.stringify(this.loginForm));
+      this.$router.go(0);
+    }
   }
 };
 </script>

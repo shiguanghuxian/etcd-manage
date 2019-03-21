@@ -4,6 +4,8 @@ import CloudHome from '@/page/CloudHome'
 
 import KV from '@/page/KV'
 import Members from '@/page/Members'
+import EtcdServers from '@/page/EtcdServers'
+import Logs from '@/page/Logs'
 
 
 Vue.use(Router)
@@ -23,7 +25,18 @@ export default new Router({
         path: '/server/members',
         name: 'Members',
         component: Members,
+      },
+      {
+        path: '/other/EtcdServers',
+        name: 'EtcdServers',
+        component: EtcdServers,
+      },
+      {
+        path: '/other/Logs',
+        name: 'Logs',
+        component: Logs,
       }
+      
     ]
   }]
 })

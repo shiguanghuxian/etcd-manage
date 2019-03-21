@@ -13,6 +13,13 @@ const SERVER = {
      */
     GetEtcdServerList(){
         return axios.get(`/v1/server`);
+    },
+
+    /**
+     * 修复etcd key目录结构
+     */
+    RestoreEtcdServer(){
+        return axios.get(`/v1/restore`);
     }
 
 }

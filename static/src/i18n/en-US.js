@@ -1,4 +1,18 @@
 const lang = {
+    sideBar: {
+        oneEtcd: 'One Etcd Server',
+        KV: 'Key / Value',
+        MEMBERS: 'MEMBERS',
+        Other: 'Other',
+        EtcdServers: 'Etcd Servers',
+        Logs: 'Logs'
+    },
+    login:{
+        title: 'Login',
+        username: 'Username',
+        password: 'Password',
+        loginBtn: 'Login'
+    },
     public:{
         add:'Add',
         edit:"Edit",
