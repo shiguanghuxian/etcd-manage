@@ -48,7 +48,7 @@ func (p *Program) startAPI() {
 		Addr:         addr,
 		Handler:      router,
 		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
+		WriteTimeout: 60 * time.Second,
 	}
 
 	log.Println("Start HTTP the service:", addr)
