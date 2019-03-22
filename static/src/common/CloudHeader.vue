@@ -19,7 +19,7 @@
         </DropdownMenu>
       </Dropdown>
     </div>
-    <div class="user" @mouseenter="hover(3, 1)" @mouseleave="hover(3, 2)">
+    <div class="user" @mouseenter="hover(3, 1)" @mouseleave="hover(3, 2)" v-if="false">
       <Avatar size="small" icon="ios-person"/>
       <Dropdown @on-click="changeUser">
         <span> {{ username }}
