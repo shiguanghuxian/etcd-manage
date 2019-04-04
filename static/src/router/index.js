@@ -2,12 +2,6 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import CloudHome from '@/page/CloudHome'
 
-import KV from '@/page/KV'
-import Members from '@/page/Members'
-import EtcdServers from '@/page/EtcdServers'
-import Logs from '@/page/Logs'
-
-
 Vue.use(Router)
 
 export default new Router({
@@ -19,22 +13,22 @@ export default new Router({
       {
         path: '/key/kv',
         name: 'KV',
-        component: KV,
+        component: () => import('@/page/KV'),
       },
       {
         path: '/server/members',
         name: 'Members',
-        component: Members,
+        component: () => import('@/page/Members'),
       },
       {
         path: '/other/EtcdServers',
         name: 'EtcdServers',
-        component: EtcdServers,
+        component: () => import('@/page/EtcdServers'),
       },
       {
         path: '/other/Logs',
         name: 'Logs',
-        component: Logs,
+        component: () => import('@/page/Logs'),
       }
       
     ]

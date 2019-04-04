@@ -4,7 +4,7 @@ import { Message } from 'iview'
 import { bus } from "@/page/bus.js";
 
 // 请求前缀
-// axios.defaults.baseURL = 'http://127.0.0.1:10280'
+// axios.defaults.baseURL = 'http://140.143.234.132:10280'
 
 // 请求之前拦截
 axios.interceptors.request.use(
