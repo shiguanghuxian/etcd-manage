@@ -38,7 +38,7 @@ func (p *Program) startAPI() {
 	}
 
 	// v1 api
-	var apiV1 *RouterGroup
+	var apiV1 *gin.RouterGroup
 	if len(accounts) > 0 {
 		apiV1 = router.Group("/v1", gin.BasicAuth(accounts))
 	} else {
