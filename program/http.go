@@ -38,7 +38,12 @@ func (p *Program) startAPI() {
 	}
 
 	// v1 api
-	apiV1 := router.Group("/v1", gin.BasicAuth(accounts))
+	var apiV1 *RouterGroup
+	if len(accounts) > 0 {
+		apiV1 = router.Group("/v1", gin.BasicAuth(accounts))
+	} else {
+		apiV1 = router.Group("/v1")
+	}
 	apiV1.Use(p.middlewareEtcd()) // 注入etcd客户端
 	v1.V1(apiV1)
 
