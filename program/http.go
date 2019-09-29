@@ -12,7 +12,7 @@ import (
 	"github.com/shiguanghuxian/etcd-manage/program/config"
 	"github.com/shiguanghuxian/etcd-manage/program/etcdv3"
 	"github.com/shiguanghuxian/etcd-manage/program/logger"
-	"github.com/shiguanghuxian/etcd-manage/program/v1"
+	v1 "github.com/shiguanghuxian/etcd-manage/program/v1"
 )
 
 // http 服务
@@ -130,6 +130,12 @@ func (p *Program) middlewareEtcd() gin.HandlerFunc {
 
 		c.Next()
 
+		etcdCli, exists := c.Get("EtcdServer")
+		if exists == true {
+			if cli, ok := etcdCli.(*etcdv3.Etcd3Client); ok == true {
+				cli.Close()
+			}
+		}
 	}
 }
 

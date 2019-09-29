@@ -81,23 +81,37 @@ func NewEtcdCli(etcdCfg *config.EtcdServer) (*Etcd3Client, error) {
 	}, nil
 }
 
+// Close 关闭连接
+func (c *Etcd3Client) Close() error {
+	return c.Client.Close()
+}
+
 // GetEtcdCli 获取一个etcd cli对象
 func GetEtcdCli(etcdCfg *config.EtcdServer) (*Etcd3Client, error) {
 	if etcdCfg == nil {
 		return nil, errors.New("etcdCfg is nil")
 	}
-	val, ok := etcdClis.Load(etcdCfg.Name)
-	if ok == false {
-		if len(etcdCfg.Address) > 0 {
-			cli, err := NewEtcdCli(etcdCfg)
-			if err != nil {
-				return nil, err
-			}
-			return cli, nil
+	if len(etcdCfg.Address) > 0 {
+		cli, err := NewEtcdCli(etcdCfg)
+		if err != nil {
+			return nil, err
 		}
-		return nil, errors.New("Getting etcd client error")
+		return cli, nil
 	}
-	return &Etcd3Client{
-		Client: val.(*clientv3.Client),
-	}, nil
+	return nil, errors.New("Getting etcd client error")
+
+	// val, ok := etcdClis.Load(etcdCfg.Name)
+	// if ok == false {
+	// 	if len(etcdCfg.Address) > 0 {
+	// 		cli, err := NewEtcdCli(etcdCfg)
+	// 		if err != nil {
+	// 			return nil, err
+	// 		}
+	// 		return cli, nil
+	// 	}
+	// 	return nil, errors.New("Getting etcd client error")
+	// }
+	// return &Etcd3Client{
+	// 	Client: val.(*clientv3.Client),
+	// }, nil
 }
