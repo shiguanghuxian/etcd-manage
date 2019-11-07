@@ -104,7 +104,7 @@ services:
       - /etc/etcd/etcdSSL/etcd-root-ca.pem
   etcd-manage:
     # build: .
-    image: "shiguanghuxian/etcd-manage"
+    image: "shiguanghuxian/etcd-manage:1"
     ports:
       - "10280:10280"
     volumes:

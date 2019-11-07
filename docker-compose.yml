@@ -16,7 +16,7 @@ services:
     - 4001:4001
   etcd-manage:
     # build: .
-    image: "shiguanghuxian/etcd-manage"
+    image: "shiguanghuxian/etcd-manage:1"
     volumes:
       - ./bin/config/cfg.toml:/app/config/cfg.toml
       - ./bin/logs:/app/logs
