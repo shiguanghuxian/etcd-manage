@@ -15,7 +15,7 @@
 
 | ios下载 | 安卓下载 |
 | :--- | :--- |
-|  [![](images/ios_down.png)](https://testflight.apple.com/join/FOzamhhv) | [![](images/google-play-badge.png)]() |
+|  [![](images/ios_down.png)](https://apps.apple.com/cn/app/etcd-ui/id1529862281) | [![](images/google-play-badge.png)]() |
 
 
 ## Thanks
