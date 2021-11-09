@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"strings"
 
-	"go.etcd.io/etcd/etcdserver/etcdserverpb"
-	"go.etcd.io/etcd/mvcc/mvccpb"
+	etcdserverpb "github.com/coreos/etcd/etcdserver/etcdserverpb"
+	mvccpb "github.com/coreos/etcd/mvcc/mvccpb"
 )
 
 // Node 需要使用到的模型
