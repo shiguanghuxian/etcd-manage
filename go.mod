@@ -8,6 +8,7 @@ replace (
 )
 
 require (
+	github.com/coreos/etcd v3.3.27+incompatible
 	github.com/gin-gonic/autotls v0.0.3
 	github.com/gin-gonic/gin v1.7.4
 	github.com/naoina/toml v0.1.1
@@ -17,7 +18,6 @@ require (
 
 require (
 	github.com/coreos/bbolt v0.0.0-00010101000000-000000000000 // indirect
-	github.com/coreos/etcd v3.3.27+incompatible // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf // indirect
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
@@ -54,7 +54,7 @@ require (
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4 // indirect
-	golang.org/x/sys v0.0.0-20210603081109-ebe580a85c40 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.3.5 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	google.golang.org/genproto v0.0.0-20211104193956-4c6863e31247 // indirect
